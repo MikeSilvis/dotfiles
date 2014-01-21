@@ -70,8 +70,6 @@ let g:ctrlp_max_files = 1000000
  " vim-scripts repos
  Bundle 'L9'
  Bundle 'FuzzyFinder'
- " non github repos
- Bundle 'git://git.wincent.com/command-t.git'
  Bundle 'chriskempson/base16-vim'
  " ...
 
