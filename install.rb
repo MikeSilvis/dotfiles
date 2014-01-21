@@ -12,5 +12,7 @@ puts  'welcome Mike!'
 %w[vimrc bash_profile gitconfig vimrc git-prompt.sh].each do |symlink|
   puts "symlinking file #{symlink}"
   `rm ~/.#{symlink}`
-  `ln -s #{symlink}  ~/.#{symlink}`
+  `cp files/#{symlink}  ~/.#{symlink}`
 end
+
+puts 'success!'
