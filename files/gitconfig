@@ -1,0 +1,45 @@
+[user]
+	name = Mike Silvis
+	email = mikesilvis@gmail.com
+[github]
+  user = mikesilvis
+[color]
+  branch = auto
+  diff = auto
+  status = auto
+  ui = auto
+[color "branch"]
+  current = yellow reverse
+  local = yellow
+  remote = green
+[color "diff"]
+  meta = yellow bold
+  frag = magenta bold
+  old = red bold
+  new = green bold
+[alias]
+  hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+  co = checkout
+  ci = commit
+  rb = rebase
+[color "status"]
+  added = yellow
+  changed = green
+  untracked = cyan
+[apply]
+  whitespace = fix
+[push]
+  default = tracking
+[core]
+	excludesfile = /Users/mikesilvis/.gitignore_global
+	editor = /usr/bin/vim -f
+[alias]
+	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
+[credential]
+	helper = osxkeychain
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true

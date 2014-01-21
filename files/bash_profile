@@ -1,0 +1,64 @@
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+
+PATH=$PATH:~/bin
+export PATH=/usr/local/bin:$PATH:/usr/local/sbin
+source ~/.git-prompt.sh
+export GIT_MERGE_AUTOEDIT=no
+
+alias re='cd ~/Documents/Hungry-Academy/reading/'
+alias pg='cd ~/Documents/Hungry-Academy/projects/'
+alias code='cd ~/Documents/code'
+
+export ELASTICSEARCH_HOST='localhost:9200'
+export PARALLEL_TESTS=6
+
+RED="\[\033[0;31m\]"
+YELLOW="\[\033[0;33m\]"
+GREEN="\[\033[0;32m\]"
+BLUE="\[\033[0;36m\]"
+PINK="\[\033[0;35m\]"
+WHITE="\[\033[1;37m\]"
+BLACK="\[\033[0;30m\]"
+OFF="\[\033[0m\]"
+export PS1="\n$YELLOW\$(~/.rvm/bin/rvm-prompt v) $BLUE\W $RED\$(__git_ps1 "%s")$OFF$GREEN \n ➲ $OFF "
+source /usr/local/etc/bash_completion.d/git-completion.bash
+
+alias redis='redis-server /usr/local/etc/redis.conf'
+alias resque="QUEUE=* rake resque:work"
+alias rake="bundle exec rake"
+alias ship='git push origin master && git push heroku master'
+
+## Rails Related
+alias migrate='rake db:migrate db:test:prepare'
+alias rs='rails server'
+alias rc='rails c'
+alias rg='rails g'
+alias rd='rails dbconsole'
+alias rr='rake routes'
+alias cl='rake log:clear'
+## Ew Rails 2.3
+alias sc='./script/console'
+## Git Related
+alias gcm='git commit -m'
+alias gpom='git push origin master'
+alias gs='git status'
+alias ga='git add .'
+alias gui='git gui'
+alias gp='git pull origin master'
+alias gpum='git pull upstream master'
+alias gb='git branch'
+alias gc='git checkout'
+alias gphm='git push heroku master'
+alias gr='git remote -v'
+
+alias vim='mvim -v'
+alias scrape='heroku run rake scrape'
+alias zspec='zeus test'
+alias fs='foreman start'
+alias cb='(__git_ps1 "%s") | pbcopy | (__git_ps1 "%s")'
+
+unset LANG
+
+# place in ~/.bash_profile as the very last line
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"
+
