@@ -1,4 +1,9 @@
 dotfiles
 ========
 
-Mike's Dotfiles
+Basic setup script for mike's on going changing configs.
+
+## Setup
+``` bash
+  ruby install.rb
+```
