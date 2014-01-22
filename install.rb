@@ -15,8 +15,15 @@ puts  'Welcome Mike!'
   `cp files/#{symlink}  ~/.#{symlink}`
 end
 
+
 # VIM settings
-if !File.directory?('/Users/mikesilvis/.vim')
+if `which mvim`.empty?
+	puts 'macvim is not installed... this might take a while'
+	`brew install macvim`
+  `brew linkapps`
+end
+
+if !File.exists?(File.expand_path("~/.vim"))
   puts 'janus is not installed...'
   `curl -Lo- https://bit.ly/janus-bootstrap | bash`
   `git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle`

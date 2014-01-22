@@ -51,7 +51,6 @@ alias gc='git checkout'
 alias gphm='git push heroku master'
 alias gr='git remote -v'
 
-alias vim='mvim -v'
 alias scrape='heroku run rake scrape'
 alias zspec='zeus test'
 alias fs='foreman start'
