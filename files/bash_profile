@@ -61,7 +61,10 @@ function pse()
 {
   ps -e | ack $1
 }
-
+function reload()
+{
+  source ~/.bash_profile
+}
 
 unset LANG
 
