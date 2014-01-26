@@ -58,6 +58,15 @@ alias fs='foreman start'
 alias cb='(__git_ps1 "%s") | pbcopy | (__git_ps1 "%s")'
 alias rv='open https://github.com/socialcast/socialcast/compare/`cb`'
 
+function pse()
+{
+  ps -e | ack $1
+}
+function reload()
+{
+  source ~/.bash_profile
+}
+
 unset LANG
 
 # place in ~/.bash_profile as the very last line

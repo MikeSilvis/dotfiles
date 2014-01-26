@@ -35,7 +35,4 @@ puts 'copying vim setup'
 `cat files/vimrc > ~/.vim/janus/vim/vimrc`
 `ln -s ~/.vim/janus/vim/vimrc ~/.vimrc`
 
-puts 'reloading bash profile'
-`source ~/.bash_profile`
-
 puts 'success!'
