@@ -4,6 +4,7 @@ PATH=$PATH:~/bin
 export PATH=/usr/local/bin:$PATH:/usr/local/sbin
 source ~/.git-prompt.sh
 export GIT_MERGE_AUTOEDIT=no
+export EDITOR='mvim -v'
 
 alias re='cd ~/Documents/Hungry-Academy/reading/'
 alias pg='cd ~/Documents/Hungry-Academy/projects/'
@@ -38,16 +39,16 @@ alias rr='rake routes'
 alias cl='rake log:clear'
 ## Ew Rails 2.3
 alias sc='./script/console'
+
 ## Git Related
 alias gcm='git commit -m'
-alias gpom='git push origin master'
 alias gs='git status'
 alias ga='git add .'
 alias gui='git gui'
-alias gp='git pull origin master'
-alias gpum='git pull upstream master'
 alias gb='git branch'
 alias gc='git checkout'
+alias gpc='git push origin `cb`'
+alias guc='git pull origin `cb`'
 alias gphm='git push heroku master'
 alias gr='git remote -v'
 alias vim='mvim -v'
