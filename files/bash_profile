@@ -65,7 +65,12 @@ function pse()
 }
 function reload()
 {
+  CURRENT_DIR=`pwd`
+  cd ~/dotfiles
+  git pull origin master
+  rake
   source ~/.bash_profile
+  cd $CURRENT_DIR
 }
 
 unset LANG
