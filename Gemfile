@@ -1,1 +1,1 @@
-gem 'rake'
+source 'https://rubygems.org'
