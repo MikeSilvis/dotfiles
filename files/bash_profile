@@ -69,7 +69,11 @@ function reload()
 {
   CURRENT_DIR=`pwd`
   cd ~/dotfiles
+  ga
+  ga -u
+  gcm 'updating bash'
   git pull origin master
+  git push origin master
   rake
   source ~/.bash_profile
   cd $CURRENT_DIR
