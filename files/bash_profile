@@ -61,6 +61,10 @@ function pse()
 {
   ps -e | ack $1
 }
+function build_fixtures()
+{
+  rspec `find . -type f -name '*_spec.rb' | xargs grep -l save_fixture | tr -s "\n" " "` && rake spec:javascript
+}
 function reload()
 {
   CURRENT_DIR=`pwd`
