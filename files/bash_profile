@@ -6,8 +6,6 @@ source ~/.git-prompt.sh
 export GIT_MERGE_AUTOEDIT=no
 export EDITOR='mvim -v'
 
-alias re='cd ~/Documents/Hungry-Academy/reading/'
-alias pg='cd ~/Documents/Hungry-Academy/projects/'
 alias code='cd ~/Documents/code'
 
 export ELASTICSEARCH_HOST='localhost:9200'
@@ -63,11 +61,19 @@ function pse()
 {
   ps -e | ack $1
 }
+function build_fixtures()
+{
+  rspec `find . -type f -name '*_spec.rb' | xargs grep -l save_fixture | tr -s "\n" " "` && rake spec:javascript
+}
 function reload()
 {
   CURRENT_DIR=`pwd`
   cd ~/dotfiles
+  ga
+  ga -u
+  gcm 'updating bash'
   git pull origin master
+  git push origin master
   rake
   source ~/.bash_profile
   cd $CURRENT_DIR
