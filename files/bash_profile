@@ -63,7 +63,7 @@ function pse()
 }
 function run_js_tests()
 {
-  build_fixtures() | xargs grep -l save_fixture | tr -s "\n" " "` && rake spec:javascript
+  build_fixtures | xargs grep -l save_fixture | tr -s "\n" " "` && rake spec:javascript
 }
 function build_fixtures()
 {
