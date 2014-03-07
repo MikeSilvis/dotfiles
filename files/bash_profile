@@ -61,9 +61,13 @@ function pse()
 {
   ps -e | ack $1
 }
+function run_js_tests()
+{
+  build_fixtures() | xargs grep -l save_fixture | tr -s "\n" " "` && rake spec:javascript
+}
 function build_fixtures()
 {
-  rspec `find . -type f -name '*_spec.rb' | xargs grep -l save_fixture | tr -s "\n" " "` && rake spec:javascript
+  rspec `find . -type f -name '*_spec.rb'
 }
 function reload()
 {
