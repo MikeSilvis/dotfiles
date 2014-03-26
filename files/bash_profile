@@ -78,7 +78,7 @@ function reload()
   gcm 'updating bash'
   git pull origin master
   git push origin master
-  rake
+  bundle exec rake
   source ~/.bash_profile
   cd $CURRENT_DIR
 }
