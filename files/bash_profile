@@ -29,10 +29,10 @@ alias ship='git push origin master && git push heroku master'
 
 ## Rails Related
 alias migrate='rake db:migrate db:test:prepare'
-alias rs='rails server'
-alias rc='rails c'
-alias rg='rails g'
-alias rd='rails dbconsole'
+alias rs='bundle exec rails server'
+alias rc='bundle exce rails c'
+alias rg='bundle exec rails g'
+alias rd='bundle exec rails dbconsole'
 alias rr='rake routes'
 alias cl='rake log:clear'
 ## Ew Rails 2.3
