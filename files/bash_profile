@@ -57,6 +57,10 @@ alias fs='foreman start'
 alias cb='(__git_ps1 "%s") | pbcopy | (__git_ps1 "%s")'
 alias rv='open https://github.com/socialcast/socialcast/compare/`cb`'
 
+function rv() {
+  REPO_URL=`gr | ack "((\w)*\/(\w)*)" -o -1`
+  open https://github.com/`REPO_URL`/compare/`cb`
+}
 function pse()
 {
   ps -e | ack $1
