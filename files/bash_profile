@@ -84,7 +84,7 @@ function reload()
   cd $CURRENT_DIR
 }
 
-function fu_whitspace() {
+function fu_whitespace() {
   find . -name "*.rb" -print0 | xargs -0 perl -pi -e 's/ +$//'
 }
 
