@@ -84,6 +84,10 @@ function reload()
   cd $CURRENT_DIR
 }
 
+function fu_whitspace() {
+  find . -name "*.rb" -print0 | xargs -0 perl -pi -e 's/ +$//'
+}
+
 unset LANG
 
 # place in ~/.bash_profile as the very last line
