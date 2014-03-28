@@ -41,6 +41,7 @@ alias sc='./script/console'
 ## Git Related
 alias gcm='git commit -m'
 alias gs='git status'
+alias gl='git log'
 alias ga='git add .'
 alias gui='git gui'
 alias gb='git branch'
