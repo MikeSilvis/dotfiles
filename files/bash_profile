@@ -4,7 +4,7 @@ PATH=$PATH:~/bin
 export PATH=/usr/local/bin:$PATH:/usr/local/sbin
 source ~/.git-prompt.sh
 export GIT_MERGE_AUTOEDIT=no
-export EDITOR='mvim -v'
+export EDITOR='vim'
 
 alias code='cd ~/Documents/code'
 
