@@ -9,7 +9,7 @@ export EDITOR='vim'
 alias code='cd ~/Documents/code'
 
 export ELASTICSEARCH_HOST='localhost:9200'
-export PARALLEL_TESTS=6
+export PARALLEL_TESTS=4
 
 RED="\[\033[0;31m\]"
 YELLOW="\[\033[0;33m\]"
@@ -61,20 +61,16 @@ function rv() {
   REPO_URL=`gr | ack "((\w)*\/([\w-])*)" -o -1`
   open https://github.com/$REPO_URL/compare/`cb`
 }
-function pse()
-{
+function pse() {
   ps -e | ack $1
 }
-function run_js_tests()
-{
+function run_js_tests() {
   build_fixtures | xargs grep -l save_fixture | tr -s "\n" " "` && rake spec:javascript
 }
-function build_fixtures()
-{
+function build_fixtures() {
   rspec `find . -type f -name '*_spec.rb'
 }
-function reload()
-{
+function reload() {
   CURRENT_DIR=`pwd`
   cd ~/dotfiles
   ga
