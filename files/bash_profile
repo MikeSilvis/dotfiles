@@ -58,6 +58,8 @@ alias zspec='zeus test'
 alias fs='foreman start'
 alias cb='(__git_ps1 "%s") | pbcopy | (__git_ps1 "%s")'
 
+alias reset_audio='sudo killall coreaudiod'
+
 function rv() {
   REPO_URL=`gr | ack "((\w)*\/([\w-])*)" -o -1`
   open https://github.com/$REPO_URL/compare/`cb`
