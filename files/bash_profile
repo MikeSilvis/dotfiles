@@ -1,4 +1,4 @@
-
+source ~/.bashrc
 PATH=$PATH:~/bin
 export PATH=/usr/local/bin:$PATH:/usr/local/sbin
 source ~/.git-prompt.sh
