@@ -1,4 +1,4 @@
-
+source ~/.bashrc
 PATH=$PATH:~/bin
 export PATH=/usr/local/bin:$PATH:/usr/local/sbin
 source ~/.git-prompt.sh
@@ -56,6 +56,8 @@ alias scrape='heroku run rake scrape'
 alias zspec='zeus test'
 alias fs='foreman start'
 alias cb='(__git_ps1 "%s") | pbcopy | (__git_ps1 "%s")'
+
+alias reset_audio='sudo killall coreaudiod'
 
 function rv() {
   REPO_URL=`gr | ack "((\w)*\/([\w-])*)" -o -1`
