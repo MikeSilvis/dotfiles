@@ -38,6 +38,7 @@ call janus#load_pathogen()
 " .vimrc.after is loaded after the plugins have loaded
 nmap <Leader><Space> :noh<Enter>
 nmap <Leader><g><b> :GitBlame<Enter>
+nmap <Leader><g><h> :Gbrowse<Enter>
 nmap <Leader><f> :Ack!
 nnoremap <leader>d "_d
 :colorscheme molokai
