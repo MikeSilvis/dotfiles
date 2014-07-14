@@ -9,7 +9,7 @@ puts  'Welcome Mike!'
 #end
 
 # Files
-%w[bash_profile gitconfig vimrc git-prompt.sh].each do |symlink|
+%w[bash_profile gitconfig vimrc git-prompt.sh xvimrc].each do |symlink|
   puts "copying file #{symlink}"
   `rm ~/.#{symlink}`
   `cp files/#{symlink}  ~/.#{symlink}`
