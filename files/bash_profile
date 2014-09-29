@@ -37,8 +37,6 @@ alias rg='bundle exec rails g'
 alias rd='bundle exec rails dbconsole'
 alias rr='rake routes'
 alias cl='rake log:clear'
-## Ew Rails 2.3
-alias sc='./script/console'
 
 ## Git Related
 alias gcm='git commit -m'
@@ -85,6 +83,13 @@ function reload() {
   bundle install
   bundle exec rake
   source ~/.bash_profile
+  cd $CURRENT_DIR
+}
+function sc_exec() {
+  CURRENT_DIR=`pwd`
+  cd code
+  cd socialcast-vagrant
+  vagrant exec bundle exec $1
   cd $CURRENT_DIR
 }
 
