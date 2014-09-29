@@ -20,7 +20,9 @@ WHITE="\[\033[1;37m\]"
 BLACK="\[\033[0;30m\]"
 OFF="\[\033[0m\]"
 export PS1="\n$YELLOW\$(~/.rvm/bin/rvm-prompt v) $BLUE\W $RED\$(__git_ps1 "%s")$OFF$GREEN \n ➲ $OFF "
-source /usr/local/etc/bash_completion.d/git-completion.bash
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+  . $(brew --prefix)/etc/bash_completion
+fi
 
 alias redis='redis-server /usr/local/etc/redis.conf'
 alias resque="QUEUE=* rake resque:work"
