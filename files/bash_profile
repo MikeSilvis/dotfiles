@@ -87,7 +87,7 @@ function reload() {
 }
 function sc_exec() {
   CURRENT_DIR=`pwd`
-  cd code
+  code
   cd socialcast-vagrant
   vagrant exec bundle exec $1
   cd $CURRENT_DIR
