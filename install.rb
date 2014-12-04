@@ -23,6 +23,11 @@ if `which mvim`.empty?
   `brew linkapps`
 end
 
+if `which rvm`.empty?
+  puts 'rvm not installed...'
+  `curl -sSL https://get.rvm.io | bash -s stable`
+end
+
 if !File.exists?(File.expand_path("~/.vim"))
   puts 'janus is not installed...'
   `curl -Lo- https://bit.ly/janus-bootstrap | bash`
