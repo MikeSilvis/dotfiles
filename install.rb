@@ -16,6 +16,11 @@ puts  'Welcome Mike!'
 end
 
 
+if `which brew`.empty?
+  puts 'homebrew not installed... this could take a while'
+  `ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
+end
+
 # VIM settings
 if `which mvim`.empty?
 	puts 'macvim is not installed... this might take a while'
