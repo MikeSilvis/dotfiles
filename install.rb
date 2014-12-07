@@ -21,10 +21,11 @@ if `which brew`.empty?
   `ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
 end
 
-# VIM settings
-if `which mvim`.empty?
-	puts 'macvim is not installed... this might take a while'
-	`brew install macvim`
+%w[ack mysql mvim].each do |plugin|
+  if `brew ls --versions #{plugin}`.empty?
+    puts "#{plugin} not installed..."
+    `brew install #{plugin}`
+  end
   `brew linkapps`
 end
 
