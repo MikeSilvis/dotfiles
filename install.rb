@@ -25,9 +25,10 @@ end
   if `brew ls --versions #{plugin}`.empty?
     puts "#{plugin} not installed..."
     `brew install #{plugin}`
+    `brew linkapps`
   end
-  `brew linkapps`
 end
+
 
 if `which rvm`.empty?
   puts 'rvm not installed...'

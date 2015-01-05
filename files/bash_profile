@@ -11,15 +11,16 @@ alias code='cd ~/Documents/code'
 export ELASTICSEARCH_HOST='localhost:9200'
 export PARALLEL_TESTS=4
 
-RED="\[\033[0;31m\]"
-YELLOW="\[\033[0;33m\]"
-GREEN="\[\033[0;32m\]"
-BLUE="\[\033[0;36m\]"
-PINK="\[\033[0;35m\]"
-WHITE="\[\033[1;37m\]"
 BLACK="\[\033[0;30m\]"
+RED="\[\033[0;31m\]"
+GREEN="\[\033[0;32m\]"
+YELLOW="\[\033[0;33m\]"
+PINK="\[\033[0;35m\]"
+BLUE="\[\033[0;36m\]"
+WHITE="\[\033[1;37m\]"
 OFF="\[\033[0m\]"
-export PS1="\n$YELLOW\$(~/.rvm/bin/rvm-prompt v) $BLUE\W $RED\$(__git_ps1 "%s")$OFF$GREEN \n ➲ $OFF "
+
+export PS1="\n$WHITE\$(~/.rvm/bin/rvm-prompt v) $BLUE\W $RED\$(__git_ps1 "%s")$OFF$GREEN \n ➲ $OFF "
 if [ -f $(brew --prefix)/etc/bash_completion ]; then
   . $(brew --prefix)/etc/bash_completion
 fi
@@ -52,8 +53,6 @@ alias gphm='git push heroku master'
 alias gr='git remote -v'
 alias vim='mvim -v'
 
-alias scrape='heroku run rake scrape'
-alias zspec='zeus test'
 alias fs='foreman start'
 alias cb='(__git_ps1 "%s") | pbcopy | (__git_ps1 "%s")'
 
@@ -63,15 +62,11 @@ function rv() {
   REPO_URL=`gr | ack "((\w)*\/([\w-])*)" -o -1`
   open https://github.com/$REPO_URL/compare/`cb`
 }
+
 function pse() {
   ps -e | ack $1
 }
-function run_js_tests() {
-  build_fixtures | xargs grep -l save_fixture | tr -s "\n" " "` && rake spec:javascript
-}
-function build_fixtures() {
-  rspec `find . -type f -name '*_spec.rb'
-}
+
 function reload() {
   CURRENT_DIR=`pwd`
   cd ~/dotfiles
@@ -83,13 +78,6 @@ function reload() {
   bundle install
   bundle exec rake
   source ~/.bash_profile
-  cd $CURRENT_DIR
-}
-function sc_exec() {
-  CURRENT_DIR=`pwd`
-  code
-  cd socialcast-vagrant
-  vagrant exec bundle exec $1
   cd $CURRENT_DIR
 }
 
