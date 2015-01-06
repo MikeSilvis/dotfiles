@@ -41,7 +41,7 @@ nmap <Leader><g><b> :GitBlame<Enter>
 nmap <Leader><g><h> :Gbrowse<Enter>
 nmap <Leader><f> :Ack!
 nnoremap <leader>d "_d
-:colorscheme molokai
+:colorscheme smyck
 :set colorcolumn=100
 :set mouse=nicr
 :set t_Co=256
