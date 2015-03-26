@@ -1,12 +1,7 @@
 puts  'Welcome Mike!'
 
-# Folders
-# One day...
-#%w[vim].each do |symlink|
-  #puts "copying folder #{symlink}"
-  #`rm -rf ~/.#{symlink}`
-  #`ln -s #{symlink}  ~/.#{symlink}`
-#end
+# Copy Janus Defaults
+`cp -rf files/janus ~/..janus`
 
 # Files
 %w[bash_profile gitconfig vimrc git-prompt.sh xvimrc].each do |symlink|
@@ -28,7 +23,6 @@ end
     `brew linkapps`
   end
 end
-
 
 if `which rvm`.empty?
   puts 'rvm not installed...'
