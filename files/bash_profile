@@ -85,6 +85,24 @@ function fu_whitespace() {
   find . -name "*.rb" -print0 | xargs -0 perl -pi -e 's/ +$//'
 }
 
+function jumbo_ship() {
+  code
+  cd sportsball
+  cd sportsball-rails
+  rm Gemfile.lock
+  bundle
+  gcm 'updating espn scraper'
+  ship
+
+  code
+  cd sportsball
+  cd sportsball-workers
+  rm Gemfile.lock
+  bundle
+  gcm 'updating espn scraper'
+  git push heroku master
+}
+
 unset LANG
 
 # place in ~/.bash_profile as the very last line
