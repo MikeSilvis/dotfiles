@@ -85,12 +85,13 @@ function fu_whitespace() {
   find . -name "*.rb" -print0 | xargs -0 perl -pi -e 's/ +$//'
 }
 
-function jumbo_ship() {
+function sportsball_update_scraper() {
   code
   cd sportsball
   cd sportsball-rails
   rm Gemfile.lock
   bundle
+  ga
   gcm 'updating espn scraper'
   ship
 
@@ -99,6 +100,7 @@ function jumbo_ship() {
   cd sportsball-workers
   rm Gemfile.lock
   bundle
+  ga
   gcm 'updating espn scraper'
   git push heroku master
 }
