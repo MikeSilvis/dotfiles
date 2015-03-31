@@ -10,7 +10,7 @@ alias code='cd ~/Documents/code'
 
 export ELASTICSEARCH_HOST='localhost:9200'
 export PARALLEL_TESTS=4
-export LANG=en_US.UTF-8
+export RUBYOPT='-E utf-8'
 
 BLACK="\[\033[0;30m\]"
 RED="\[\033[0;31m\]"
