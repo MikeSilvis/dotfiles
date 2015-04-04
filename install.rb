@@ -1,7 +1,9 @@
 puts  'Welcome Mike!'
 
 # Copy Janus Defaults
-`cp -rf files/janus ~/..janus`
+`rm -rf ~/janus`
+`mkdir ~/janus`
+`cp -rf files/janus ~/janus`
 
 # Files
 %w[bash_profile gitconfig vimrc git-prompt.sh xvimrc].each do |symlink|
