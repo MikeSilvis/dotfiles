@@ -29,14 +29,24 @@ end
 if `which rvm`.empty?
   puts 'rvm not installed...'
   `curl -sSL https://get.rvm.io | bash -s stable`
+  `rvm get head`
 end
 
-#if !File.exists?(File.expand_path("~/.vim"))
-  #puts 'janus is not installed...'
-  #`curl -Lo- https://bit.ly/janus-bootstrap | bash`
-  #`git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle`
-  #`vim +BundleInstall +qall`
-#end
+if `rvm list rubies`.empty?
+  puts 'ruby version not installled'
+  `rvm install ruby 2.1.5`
+end
+
+unless `gem list bundle -i`
+  `gem install bundle`
+end
+
+if !File.exists?(File.expand_path("~/.vim"))
+  puts 'janus is not installed...'
+  `curl -Lo- https://bit.ly/janus-bootstrap | bash`
+  `git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle`
+  `vim +BundleInstall +qall`
+end
 
 puts 'copying vim setup'
 `rm ~/.vimrc`
