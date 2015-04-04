@@ -31,12 +31,12 @@ if `which rvm`.empty?
   `curl -sSL https://get.rvm.io | bash -s stable`
 end
 
-if !File.exists?(File.expand_path("~/.vim"))
-  puts 'janus is not installed...'
-  `curl -Lo- https://bit.ly/janus-bootstrap | bash`
-  `git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle`
-  `vim +BundleInstall +qall`
-end
+#if !File.exists?(File.expand_path("~/.vim"))
+  #puts 'janus is not installed...'
+  #`curl -Lo- https://bit.ly/janus-bootstrap | bash`
+  #`git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle`
+  #`vim +BundleInstall +qall`
+#end
 
 puts 'copying vim setup'
 `rm ~/.vimrc`
