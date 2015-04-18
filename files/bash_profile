@@ -4,6 +4,7 @@ export PATH=/usr/local/bin:$PATH:/usr/local/sbin
 source ~/.git-prompt.sh
 export GIT_MERGE_AUTOEDIT=no
 export EDITOR='vim'
+export RACK_ENV='development'
 export PORT='3000'
 
 alias code='cd ~/Documents/code'
