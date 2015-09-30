@@ -107,6 +107,13 @@ function sportsball_update_scraper() {
   git push heroku master
 }
 
+function openLastRealm() {
+  cd /Users/$USER/Library/Developer/CoreSimulator/Devices/
+  cd `ls -t | head -n 1`
+  cd data/Containers/Data/Application/
+  cd `ls -t | head -n 1`
+}
+
 unset LANG
 
 # place in ~/.bash_profile as the very last line
