@@ -108,11 +108,15 @@ function sportsball_update_scraper() {
 }
 
 function openLastRealm() {
+  CURRENT_DIR=`pwd`
+
   cd /Users/$USER/Library/Developer/CoreSimulator/Devices/
   cd `ls -t | head -n 1`
   cd data/Containers/Data/Application/
   cd `ls -t | head -n 1`
   open Documents/default.realm
+
+  cd $CURRENT_DIR
 }
 
 unset LANG
