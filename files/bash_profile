@@ -112,6 +112,7 @@ function openLastRealm() {
   cd `ls -t | head -n 1`
   cd data/Containers/Data/Application/
   cd `ls -t | head -n 1`
+  open Documents/default.realm
 }
 
 unset LANG
