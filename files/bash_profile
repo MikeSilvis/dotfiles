@@ -62,7 +62,7 @@ alias reset_audio='sudo killall coreaudiod'
 
 function rv() {
   REPO_URL=`gr | ack "((\w)*\/([\w-])*)" -o -1`
-  open https://github.com/$REPO_URL/compare/release/master...`cb`
+  open https://github.com/$REPO_URL/compare/master...`cb`
 }
 
 function pse() {
