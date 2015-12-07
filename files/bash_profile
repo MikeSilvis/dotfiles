@@ -80,6 +80,8 @@ function mergeBranch() {
   git checkout master
   git merge CURRENT_BRANCH
   git push origin master
+  git push origin --delete MERGING_BRANCH
+  git branch -D MERGING_BRANCH
 }
 
 function reload() {
