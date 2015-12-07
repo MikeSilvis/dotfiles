@@ -69,6 +69,19 @@ function pse() {
   ps -e | ack $1
 }
 
+func mergeBranch() {
+  CURRENT_BRANCH = `cb`
+
+  git checkout master
+  git pull --rebase origin master
+  git checkout -
+  git rebase master
+  git push origin CURRENT_BRANCH
+  git checkout master
+  git merge CURRENT_BRANCH
+  git push origin master
+}
+
 function reload() {
   CURRENT_DIR=`pwd`
   cd ~/dotfiles
