@@ -69,7 +69,7 @@ function pse() {
   ps -e | ack $1
 }
 
-func mergeBranch() {
+function mergeBranch() {
   CURRENT_BRANCH=`cb`
 
   git checkout master
