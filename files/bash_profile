@@ -70,7 +70,7 @@ function pse() {
 }
 
 func mergeBranch() {
-  CURRENT_BRANCH = `cb`
+  CURRENT_BRANCH=`cb`
 
   git checkout master
   git pull --rebase origin master
