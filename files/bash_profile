@@ -78,7 +78,7 @@ function mergeBranch() {
   git rebase master
   git push origin $CURRENT_BRANCH -f
   git checkout master
-  git merge CURRENT_BRANCH
+  git merge $CURRENT_BRANCH
   git push origin master
   git push origin --delete $CURRENT_BRANCH
   git branch -D $CURRENT_BRANCH
