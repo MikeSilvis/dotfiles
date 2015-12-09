@@ -76,12 +76,12 @@ function mergeBranch() {
   git pull --rebase origin master
   git checkout -
   git rebase master
-  git push origin CURRENT_BRANCH
+  git push origin $CURRENT_BRANCH -f
   git checkout master
   git merge CURRENT_BRANCH
   git push origin master
-  git push origin --delete MERGING_BRANCH
-  git branch -D MERGING_BRANCH
+  git push origin --delete $CURRENT_BRANCH
+  git branch -D $CURRENT_BRANCH
 }
 
 function reload() {
