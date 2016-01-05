@@ -134,6 +134,10 @@ function openLastRealm() {
   cd $CURRENT_DIR
 }
 
+function purchaseJSONResponse() {
+  curl https://gametime.co/customer_user/purchases -d '{"session_token": "'$1'", "transaction_id": "'$2'", "user_id": "'$3'"}' | json_pp | pbcopy
+}
+
 unset LANG
 
 # place in ~/.bash_profile as the very last line
