@@ -134,6 +134,11 @@ function openLastRealm() {
   cd $CURRENT_DIR
 }
 
+function prettyDiff() {
+  git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative $1..$2
+}
+
+
 function purchaseJSONResponse() {
   curl https://gametime.co/customer_user/purchases -d '{"session_token": "'$1'", "transaction_id": "'$2'", "user_id": "'$3'"}' | json_pp | pbcopy
 }
