@@ -6,6 +6,7 @@ export GIT_MERGE_AUTOEDIT=no
 export EDITOR='vim'
 export RACK_ENV='development'
 export PORT='3000'
+export RUBY_ENV='development'
 
 alias code='cd ~/Documents/code'
 
