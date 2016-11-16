@@ -34,7 +34,7 @@ end
 
 if `rvm list rubies`.empty?
   puts 'ruby version not installled'
-  `rvm install ruby 2.1.5`
+  `rvm install ruby 2.3.0`
 end
 
 unless `gem list bundle -i`
