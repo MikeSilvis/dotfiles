@@ -38,6 +38,7 @@ if `rvm list rubies`.empty?
 end
 
 unless `gem list bundle -i`
+  puts 'install bundle'
   `gem install bundle`
 end
 
