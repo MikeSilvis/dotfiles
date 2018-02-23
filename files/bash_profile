@@ -8,7 +8,7 @@ export RACK_ENV='development'
 export PORT='3000'
 export RUBY_ENV='development'
 
-alias code='cd ~/Documents/code'
+alias code='cd ~/code'
 
 export ELASTICSEARCH_HOST='localhost:9200'
 export PARALLEL_TESTS=4
