@@ -10,6 +10,8 @@ export RUBY_ENV='development'
 
 alias code='cd ~/code'
 
+export WORKSPACE=~/code
+
 export ELASTICSEARCH_HOST='localhost:9200'
 export PARALLEL_TESTS=4
 export RUBYOPT='-E utf-8'
