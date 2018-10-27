@@ -1,0 +1,11 @@
+## Git Related
+alias gcm='git commit -m'
+alias gs='git status'
+alias ga='git add .'
+alias gc='git checkout'
+alias gr='git remote -v'
+
+function resetHard() {
+  git reset --hard
+  git submodule update --init
+}
