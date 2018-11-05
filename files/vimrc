@@ -1,4 +1,6 @@
 map <C-n> :NERDTreeToggle<CR>
+map <C-j> :NERDTreeFind<CR>
+
 nmap <Leader><Space> :noh<Enter>
 
 syntax on
