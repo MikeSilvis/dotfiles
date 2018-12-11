@@ -54,4 +54,7 @@ dotfiles.each do |file|
   `cp ~/dotfiles/files/#{file} ~/.#{file}`
 end
 
+`vim +PluginInstall +qall`
+
 puts 'Success!'
+

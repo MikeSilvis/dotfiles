@@ -31,6 +31,9 @@ call vundle#begin()
 
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'ervandew/supertab'
+Plugin 'tpope/vim-rails.git'
+Plugin 'airblade/vim-gitgutter'
+Plugin 'elzr/vim-json'
 
 call vundle#end()
 filetype plugin indent on
