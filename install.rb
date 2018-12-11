@@ -37,14 +37,11 @@ plugins = [
   ['https://github.com/ctrlpvim/ctrlp.vim.git', 'ctrlp'],
   ['https://github.com/scrooloose/nerdtree.git', 'nerdtree'],
   ['https://github.com/vim-syntastic/syntastic.git', 'syntastic'],
-  ['https://github.com/tomtom/tlib_vim.git', 'tlib'],
-  ['https://github.com/MarcWeber/vim-addon-mw-utils.git', 'vim-addon-nw-utils'],
-  ['https://github.com/garbas/vim-snipmate.git', 'vim-snipmate'],
+  ['https://github.com/VundleVim/Vundle.vim.git', 'Vundlevim.']
 ]
 
-
-plugins.each do |extension|
-  `git clone --depth=1 #{extension[0]} ~/.vim/bundle/#{extension[1]}`
+plugins.each do |plugin|
+  `git clone --depth=1 #{plugin[0]} ~/.vim/bundle/#{plugin[1]}`
 end
 
 puts 'Copying config files'

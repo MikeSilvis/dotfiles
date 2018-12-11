@@ -5,6 +5,7 @@ alias ga='git add .'
 alias gc='git checkout'
 alias gr='git remote -v'
 alias cb=`(__git_ps1 "%s")`
+alias format='./Pods/SpaceCommander/format-objc-files.sh -s'
 
 function resetHard() {
   git reset --hard
