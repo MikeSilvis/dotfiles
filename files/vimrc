@@ -21,6 +21,11 @@ let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 
+filetype plugin indent on
+set tabstop=2
+set shiftwidth=2
+set expandtab
+
 execute pathogen#infect()
 
 set nocompatible
@@ -34,6 +39,12 @@ Plugin 'ervandew/supertab'
 Plugin 'tpope/vim-rails.git'
 Plugin 'airblade/vim-gitgutter'
 Plugin 'elzr/vim-json'
+Plugin 'Valloric/YouCompleteMe'
+Plugin 'leafgarland/typescript-vim'
+Plugin 'craigemery/vim-autotag'
+Plugin 'scrooloose/nerdcommenter'
 
 call vundle#end()
 filetype plugin indent on
+
+autocmd BufNewFile,BufRead Podfile,*.podspec set filetype=ruby

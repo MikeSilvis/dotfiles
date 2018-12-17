@@ -12,7 +12,7 @@ if `which rvm`.empty?
 end
 
 puts 'Installing New Homebrew extensions'
-%w[ack vim].each do |plugin|
+%w[ack vim node npm cmake].each do |plugin|
   if `brew ls --versions #{plugin}`.empty?
     puts "#{plugin} not installed..."
     `brew install #{plugin}`
@@ -54,7 +54,12 @@ dotfiles.each do |file|
   `cp ~/dotfiles/files/#{file} ~/.#{file}`
 end
 
+
+puts 'installing plugins'
 `vim +PluginInstall +qall`
+
+puts 'installing autocomplete'
+`cd ~/.vim/bundle/YouCompleteMe && ./install.py --all`
 
 puts 'Success!'
 
