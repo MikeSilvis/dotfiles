@@ -25,6 +25,8 @@ filetype plugin indent on
 set tabstop=2
 set shiftwidth=2
 set expandtab
+set cursorline
+set colorcolumn=100
 
 execute pathogen#infect()
 

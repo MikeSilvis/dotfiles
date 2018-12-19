@@ -19,3 +19,6 @@ function push() {
 	echo "Answer was: $answer"
 }
 
+if type complete >/dev/null 2>&1; then
+  __git_complete gc _git_checkout
+fi

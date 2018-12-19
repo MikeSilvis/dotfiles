@@ -12,7 +12,7 @@ if `which rvm`.empty?
 end
 
 puts 'Installing New Homebrew extensions'
-%w[ack vim node npm cmake].each do |plugin|
+%w[ack vim node npm cmake watchman].each do |plugin|
   if `brew ls --versions #{plugin}`.empty?
     puts "#{plugin} not installed..."
     `brew install #{plugin}`
