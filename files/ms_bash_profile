@@ -7,6 +7,8 @@ alias gr='git remote -v'
 alias cb=`(__git_ps1 "%s")`
 alias format='./Pods/SpaceCommander/format-objc-files.sh -s'
 
+GIT_EDITOR='vim'
+
 function resetHard() {
   git reset --hard
   git submodule update --init
