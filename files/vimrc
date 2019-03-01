@@ -1,5 +1,6 @@
 map <C-n> :NERDTreeToggle<CR>
 map <C-j> :NERDTreeFind<CR>
+map <leader>gb :Gblame<CR>
 
 nmap <Leader><Space> :noh<Enter>
 
@@ -45,6 +46,8 @@ Plugin 'Valloric/YouCompleteMe'
 Plugin 'leafgarland/typescript-vim'
 Plugin 'craigemery/vim-autotag'
 Plugin 'scrooloose/nerdcommenter'
+Plugin 'tpope/vim-fugitive'
+Plugin 'udalov/kotlin-vim'
 
 call vundle#end()
 filetype plugin indent on
