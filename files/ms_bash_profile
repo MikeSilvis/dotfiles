@@ -24,3 +24,7 @@ function push() {
 if type complete >/dev/null 2>&1; then
   __git_complete gc _git_checkout
 fi
+
+export DEVELOPMENT_TEAM_ID='78USZ8YX87'
+export APPLE_DEVELOPER_TEAM_ID='78USZ8YX87'
+export APPLE_DEVELOPER_EMAIL='mikesilvis@gmail.com'
