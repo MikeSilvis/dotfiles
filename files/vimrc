@@ -48,6 +48,7 @@ Plugin 'craigemery/vim-autotag'
 Plugin 'scrooloose/nerdcommenter'
 Plugin 'tpope/vim-fugitive'
 Plugin 'udalov/kotlin-vim'
+Plugin 'mileszs/ack.vim'
 
 call vundle#end()
 filetype plugin indent on
