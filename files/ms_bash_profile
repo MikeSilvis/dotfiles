@@ -14,13 +14,6 @@ function resetHard() {
   git submodule update --init
 }
 
-function push() {
-  CURRENT_BRANCH=`(__git_ps1 "%s")`
-	echo -n "Confirm force push: $CURRENT_BRANCH "
-	read answer
-	echo "Answer was: $answer"
-}
-
 if type complete >/dev/null 2>&1; then
   __git_complete gc _git_checkout
 fi
