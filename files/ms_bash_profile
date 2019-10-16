@@ -6,6 +6,7 @@ alias gc='git checkout'
 alias gr='git remote -v'
 alias cb=`(__git_ps1 "%s")`
 alias format='./Pods/SpaceCommander/format-objc-files.sh -s'
+alias fuckeverything="git clean -xffd && git submodule sync --recursive && git submodule foreach --recursive 'git reset HEAD . && git checkout . && git clean -xfffd' && git submodule update --init --recursive && bundle install && be pod cache clean --all && be pod install --repo-update --verbose; dxdd"
 
 GIT_EDITOR='vim'
 
@@ -21,3 +22,6 @@ fi
 export DEVELOPMENT_TEAM_ID='78USZ8YX87'
 export APPLE_DEVELOPER_TEAM_ID='78USZ8YX87'
 export APPLE_DEVELOPER_EMAIL='mikesilvis@gmail.com'
+
+export PROD_APPLE_MERCHANT_ID='merchant.com.mikesilvis.squareup.apple-pay'
+export SANDBOX_APPLE_MERCHANT_ID='merchant.com.msilvis.squareup.apple-pay'
