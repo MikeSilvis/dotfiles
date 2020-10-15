@@ -37,7 +37,8 @@ plugins = [
   ['https://github.com/ctrlpvim/ctrlp.vim.git', 'ctrlp'],
   ['https://github.com/scrooloose/nerdtree.git', 'nerdtree'],
   ['https://github.com/vim-syntastic/syntastic.git', 'syntastic'],
-  ['https://github.com/VundleVim/Vundle.vim.git', 'Vundlevim.']
+  ['https://github.com/VundleVim/Vundle.vim.git', 'Vundlevim.'],
+  ['https://github.com/ycm-core/YouCompleteMe', 'YouCompleteMe']
 ]
 
 plugins.each do |plugin|
@@ -51,7 +52,7 @@ dotfiles = %w[
 ]
 
 dotfiles.each do |file|
-  `cp ~/dotfiles/files/#{file} ~/.#{file}`
+  `cp ~/Development/dotfiles-2/files/#{file} ~/.#{file}`
 end
 
 
