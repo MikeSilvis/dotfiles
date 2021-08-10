@@ -52,7 +52,7 @@ dotfiles = %w[
 ]
 
 dotfiles.each do |file|
-  `cp ~/Development/dotfiles-2/files/#{file} ~/.#{file}`
+  `cp ./files/#{file} ~/.#{file}`
 end
 
 
