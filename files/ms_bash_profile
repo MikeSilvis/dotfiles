@@ -25,6 +25,23 @@ function resetHard() {
   git submodule update --init
 }
 
+function lastAuthor() {
+  git log -1 --pretty=format:'%an'  | xargs
+}
+
+function gcma() {
+  if [[ "Mike Silvis" != "$(lastAuthor)" ]]; then
+    echo "Please create an initial commit before running"
+    return
+  fi
+
+  git add .
+  Scripts/format-swift-files.sh -s
+  "/Users/msilvis/Developer/ios-register/master/Pods/SpaceCommander"/format-objc-files.sh -s
+  git add .
+  git commit --amend
+}
+
 function enableIndex() {
   defaults write com.apple.dt.XCode IDEIndexDisable 0
 }
@@ -36,6 +53,7 @@ function disableIndex() {
 export DEVELOPMENT_TEAM_ID='78USZ8YX87'
 export APPLE_DEVELOPER_TEAM_ID='78USZ8YX87'
 export APPLE_DEVELOPER_EMAIL='mikesilvis@gmail.com'
+export ADC_USER_NAME="mikesilvis@gmail.com"
 
 export PROD_APPLE_MERCHANT_ID='merchant.com.mikesilvis.squareup.apple-pay'
 export SANDBOX_APPLE_MERCHANT_ID='merchant.com.msilvis.squareup.apple-pay'
