@@ -10,7 +10,6 @@ alias gr='git remote -v'
 alias cb=`(__git_ps1 "%s")`
 alias format='./Pods/SpaceCommander/format-objc-files.sh -s'
 alias bepi='bundle exec pod install'
-alias fuckeverything="git clean -xffd && git submodule sync --recursive && git submodule foreach --recursive 'git reset HEAD . && git checkout . && git clean -xfffd' && git submodule update --init --recursive && bundle install && be pod cache clean --all && be pod install --repo-update --verbose; dxdd"
 
 GIT_EDITOR='vim'
 
@@ -42,6 +41,12 @@ function gcma() {
   git commit --amend
 }
 
+function buildDependencies() {
+  bazel build $(bazel query "kind('ios_application|test_suite', rdeps(..., $@/...))")
+}
+
+
+
 function enableIndex() {
   defaults write com.apple.dt.XCode IDEIndexDisable 0
 }
@@ -59,4 +64,39 @@ export PROD_APPLE_MERCHANT_ID='merchant.com.mikesilvis.squareup.apple-pay'
 export SANDBOX_APPLE_MERCHANT_ID='merchant.com.msilvis.squareup.apple-pay'
 export ENABLE_COCOAPODS_FMWK=1
 
-alias bz="be Scripts/BazelLocal/generate_xcode_project_with_bazel.rb $@ --auto-open"
+# alias bz="be Scripts/BazelLocal/generate_xcode_project_with_bazel.rb $@ --auto-open"
+alias bz="be Scripts/BazelLocal/generate_xcode_project_with_bazel.rb $@ --auto-open --generator=rules_xcodeproj"
+alias downloadSnapshotImages="be ./Scripts/download-view-test-images.rb $@ --use-netrc"
+
+# function git() {
+#   if [ "$1" = checkout ] && [ "$2" = main ]; then
+#     if [ -n "$3" ]; then
+#       command git checkout origin/green/main "$3"
+#     else
+#       command git checkout origin/green/main
+#     fi
+#   elif [ "$1" = rebase ] && [ "$2" = main ]; then
+#     command git fetch &&
+#     command git rebase origin/green/main
+#   elif [ "$1" = checkout ] && [ "$2" = -b ]; then
+#     if [ "$current_branch" = "origin/green/main" ]; then
+#       shift 2
+#       branch_name="$1"
+#       # command git pull &&
+#       command git checkout origin/green/main &&
+#       command git checkout -b "$branch_name"
+#     else
+#       command git checkout -b "$branch_name"
+#     fi
+
+#   else
+#     command git "$@"
+#   fi
+# }
+
+# git() {
+#     if [ "$2" = "main" ]; then
+#         set -- "$1" "$2" "origin/green/main" "${@:4}"
+#     fi
+#     command git "$@"
+# }

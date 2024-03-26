@@ -19,5 +19,6 @@ BLUE="\[\033[0;36m\]"
 OFF="\[\033[0m\]"
 
 export PS1="\n$YELLOW\$(~/.rvm/bin/rvm-prompt v) $BLUE\W $RED\$(__git_ps1 "%s")$OFF$GREEN \n ➲ $OFF "
+export USE_SQUINTER_PRECOMMIT=1
 
 source ~/dotfiles/files/ms_bash_profile
