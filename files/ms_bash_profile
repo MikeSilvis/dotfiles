@@ -1,4 +1,13 @@
-source ~/.git-prompt.sh
+# source ~/.git-prompt.sh
+
+RED="\[\033[0;31m\]"
+GREEN="\[\033[0;32m\]"
+YELLOW="\[\033[0;33m\]"
+BLUE="\[\033[0;36m\]"
+OFF="\[\033[0m\]"
+
+export USE_SQUINTER_PRECOMMIT=1
+set -o vi
 
 ## Git Related
 alias gcm='git commit -m'
@@ -36,7 +45,7 @@ function gcma() {
 
   git add .
   Scripts/format-swift-files.sh -s
-  "/Users/msilvis/Developer/ios-register/master/Pods/SpaceCommander"/format-objc-files.sh -s
+  "/Users/msilvis/Developer/ios-register/Pods/SpaceCommander"/format-objc-files.sh -s
   git add .
   git commit --amend
 }

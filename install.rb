@@ -12,7 +12,7 @@ if `which rvm`.empty?
 end
 
 puts 'Installing New Homebrew extensions'
-%w[ack vim node npm cmake watchman].each do |plugin|
+%w[go ack vim node npm cmake watchman].each do |plugin|
   if `brew ls --versions #{plugin}`.empty?
     puts "#{plugin} not installed..."
     `brew install #{plugin}`
@@ -36,9 +36,7 @@ puts 'Adding plugins'
 plugins = [
   ['https://github.com/ctrlpvim/ctrlp.vim.git', 'ctrlp'],
   ['https://github.com/scrooloose/nerdtree.git', 'nerdtree'],
-  ['https://github.com/vim-syntastic/syntastic.git', 'syntastic'],
   ['https://github.com/VundleVim/Vundle.vim.git', 'Vundlevim.'],
-  ['https://github.com/ycm-core/YouCompleteMe', 'YouCompleteMe']
 ]
 
 plugins.each do |plugin|
@@ -58,9 +56,6 @@ end
 
 puts 'installing plugins'
 `vim +PluginInstall +qall`
-
-puts 'installing autocomplete'
-`cd ~/.vim/bundle/YouCompleteMe && ./install.py --all`
 
 puts 'Success!'
 

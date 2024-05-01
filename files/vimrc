@@ -4,23 +4,14 @@ map <leader>gb :Gblame<CR>
 
 nmap <Leader><Space> :noh<Enter>
 
-syntax on
 colorscheme smyck
 
 set wrap!
 set number
 
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
 set mouse=a
 set clipboard=unnamed
 set hlsearch
-
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
 
 filetype plugin indent on
 set tabstop=2
@@ -37,12 +28,13 @@ filetype off
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
+:syntax on
+
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'ervandew/supertab'
 Plugin 'tpope/vim-rails.git'
 Plugin 'airblade/vim-gitgutter'
 Plugin 'elzr/vim-json'
-Plugin 'Valloric/YouCompleteMe'
 Plugin 'leafgarland/typescript-vim'
 Plugin 'craigemery/vim-autotag'
 Plugin 'scrooloose/nerdcommenter'
@@ -50,6 +42,7 @@ Plugin 'tpope/vim-fugitive'
 Plugin 'udalov/kotlin-vim'
 Plugin 'mileszs/ack.vim'
 Plugin 'keith/swift.vim'
+Plugin 'dense-analysis/ale'
 
 call vundle#end()
 filetype plugin indent on
