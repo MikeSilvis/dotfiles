@@ -17,10 +17,14 @@ A comprehensive collection of development environment configurations for macOS, 
    cd ~/Developer/dotfiles
    ```
 
-2. **Run the sync tool:**
+2. **Run the initial sync (this installs the `sync()` function):**
    ```bash
    ./bin/dotfiles-sync
    ```
+   
+   **Note**: After this first run, you can use `sync` from anywhere!
+   
+   **Troubleshooting**: If you see VSCode extension installation errors, this is normal and doesn't affect the main functionality. The extensions are already installed.
 
 3. **Configure environment variables:**
    ```bash
@@ -45,6 +49,13 @@ dotfiles/
 │   │   ├── bash_profile   # Bash configuration
 │   │   ├── development_profile # Development aliases and functions
 │   │   └── zshrc          # Zsh configuration
+│   ├── git/               # Git configurations
+│   │   ├── gitconfig      # Git global configuration
+│   │   └── gitignore_global # Global gitignore rules
+│   ├── ssh/               # SSH configurations
+│   │   └── config         # SSH client configuration
+│   ├── inputrc            # Readline configuration
+│   ├── ackrc              # Ack search tool configuration
 │   ├── fonts/             # Custom fonts
 │   ├── themes/            # Xcode and iTerm2 themes
 │   │   └── xcode/         # Xcode color themes
@@ -68,7 +79,8 @@ dotfiles/
 ### Core Tools
 - **Homebrew** - Package manager
 - **rbenv** - Ruby version manager (replaces RVM)
-- **vim-plug** - Modern Vim plugin manager (replaces Vundle/Pathogen)
+- **Oh My Zsh** - Zsh framework with themes and plugins
+- **Vundle and Pathogen** - Vim plugin managers
 
 ### Development Tools
 - Go, Node.js, npm
@@ -90,6 +102,12 @@ dotfiles/
 - **Cursor**: Settings, keybindings, and extensions
 - **VSCode**: Settings and extensions
 - **Automatic Installation**: All extensions installed automatically
+
+### Additional Configurations
+- **Git**: Global gitconfig and gitignore_global
+- **SSH**: SSH client configuration with proper permissions
+- **Readline**: Inputrc for enhanced command line editing
+- **Ack**: Search tool configuration
 
 ### Shell Features
 - **Oh My Zsh** with Agnoster theme
@@ -154,6 +172,8 @@ The sync tool supports several options:
 ```
 
 ### 🚀 Convenient Sync Function
+
+**First Time Setup**: Run `./bin/dotfiles-sync` once to install the `sync()` function.
 
 After installation, you can use the `sync()` function from anywhere:
 
@@ -307,6 +327,16 @@ Then run `:PlugInstall` in Vim.
 
 ### Adding New Environment Variables
 Add them to `configs/env.template` and your local `~/.env` file.
+
+## 🔧 Additional Setup (Optional)
+
+For a complete development environment, you may also want to:
+
+- **Install Vim plugins**: Run `:PluginInstall` in Vim after first sync
+- **Set up SSH keys**: Add your SSH keys to `~/.ssh/` (not synced for security)
+- **Configure Git user**: Set your name and email in git config
+- **Install additional tools**: Consider tools like `tmux`, `fzf`, `ripgrep`, etc.
+- **Set up language-specific tools**: Node.js versions, Python environments, etc.
 
 ## 📚 Documentation
 

@@ -26,11 +26,13 @@ class DotfilesSync
       install_homebrew
       install_ruby_version_manager
       install_homebrew_packages
+      install_oh_my_zsh
       setup_vim
       copy_dotfiles
       install_fonts_and_themes
       install_iterm2_config
       install_editor_configs
+      install_xcode_config
       puts "✅ Sync completed successfully!"
     rescue StandardError => e
       puts "❌ Sync failed: #{e.message}"
@@ -63,7 +65,7 @@ class DotfilesSync
     return if system('which rbenv > /dev/null 2>&1')
 
     run_command('brew install rbenv ruby-build', 'Installing rbenv and ruby-build')
-    run_command('rbenv init', 'Initializing rbenv')
+    puts "💡 Please add 'eval \"$(rbenv init -)\"' to your shell profile to enable rbenv"
   end
 
   def install_homebrew_packages
@@ -83,6 +85,16 @@ class DotfilesSync
       next if system("brew list #{package} > /dev/null 2>&1")
       run_command("brew install #{package}", "Installing #{package}")
     end
+  end
+
+  def install_oh_my_zsh
+    puts "🐚 Installing Oh My Zsh..."
+    return if Dir.exist?("#{ENV['HOME']}/.oh-my-zsh")
+
+    run_command(
+      'sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended',
+      'Installing Oh My Zsh'
+    )
   end
 
   def setup_vim
@@ -126,7 +138,12 @@ class DotfilesSync
       './configs/shell/bash_profile' => "#{ENV['HOME']}/.bash_profile",
       './configs/shell/zshrc' => "#{ENV['HOME']}/.zshrc",
       './configs/shell/development_profile' => "#{ENV['HOME']}/.development_profile",
-      './configs/vim/vimrc' => "#{ENV['HOME']}/.vimrc"
+      './configs/vim/vimrc' => "#{ENV['HOME']}/.vimrc",
+      './configs/git/.gitconfig' => "#{ENV['HOME']}/.gitconfig",
+      './configs/git/.gitignore_global' => "#{ENV['HOME']}/.gitignore_global",
+      './configs/ssh/config' => "#{ENV['HOME']}/.ssh/config",
+      './configs/.inputrc' => "#{ENV['HOME']}/.inputrc",
+      './configs/.ackrc' => "#{ENV['HOME']}/.ackrc"
     }
 
     dotfiles.each do |source, target|
@@ -138,9 +155,19 @@ class DotfilesSync
         FileUtils.cp(target, "#{@backup_dir}/#{File.basename(target)}")
       end
 
+      # Ensure SSH directory exists and has proper permissions
+      if target.include?('.ssh/') && !@dry_run
+        FileUtils.mkdir_p(File.dirname(target))
+        FileUtils.chmod(0700, File.dirname(target))
+      end
+
       puts "📄 Copying #{File.basename(source)} to #{target}"
       unless @dry_run
         FileUtils.cp(source, target)
+        # Set proper permissions for SSH config
+        if target.include?('.ssh/')
+          FileUtils.chmod(0600, target)
+        end
       end
     end
   end
