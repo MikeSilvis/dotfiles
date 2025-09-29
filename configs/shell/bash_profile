@@ -12,4 +12,4 @@ source ~/Development/config_files/square/bash_profile
 
 # vim: filetype=sh
 
-source ~/dotfiles/files/ms_bash_profile
+source ~/.development_profile

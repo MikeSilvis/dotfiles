@@ -1,0 +1,128 @@
+{
+  "Profiles": [
+    {
+      "Name": "Development",
+      "Guid": "DEVELOPMENT-PROFILE-GUID",
+      "Custom Command": "No",
+      "Command": "",
+      "Custom Directory": "Yes",
+      "Directory": "~/Development",
+      "Custom Title": "Yes",
+      "Title": "Development",
+      "Badge Text": "DEV",
+      "Badge Color": {
+        "Red Component": 0.0,
+        "Green Component": 0.8,
+        "Blue Component": 0.0,
+        "Alpha Component": 1.0
+      },
+      "Use Cursor Guide": true,
+      "Cursor Guide Color": {
+        "Red Component": 0.0,
+        "Green Component": 0.8,
+        "Blue Component": 0.0,
+        "Alpha Component": 0.3
+      },
+      "Font": "SourceCodePro-Regular",
+      "Font Size": 14,
+      "Use Bold Font": false,
+      "Use Bright Bold": true,
+      "Use Italic Font": true,
+      "Use Thin Strokes": false,
+      "ASCII Anti Aliased": true,
+      "Non-ASCII Anti Aliased": true,
+      "Scrollback Lines": 10000,
+      "Unlimited Scrollback": false,
+      "Scrollback With Status Bar": false,
+      "Scrollback in Alternate Screen": true,
+      "Mouse Reporting": true,
+      "Mouse Reporting allow mouse wheel": true,
+      "Disable Window Resizing": false,
+      "Sync Title": false,
+      "Close Sessions On End": true,
+      "Allow Title Reporting": false,
+      "Allow Title Setting": false,
+      "Disable Window Resizing": false,
+      "Window Type": 0,
+      "Window Type": 0,
+      "Columns": 120,
+      "Rows": 30,
+      "Minimum Contrast": 0.0,
+      "Cursor Boost": 0.0,
+      "Blinking Cursor": false,
+      "Cursor Type": 0,
+      "Cursor Text Color": {
+        "Red Component": 0.0,
+        "Green Component": 0.0,
+        "Blue Component": 0.0,
+        "Alpha Component": 1.0
+      },
+      "Use Tab Color": true,
+      "Tab Color": {
+        "Red Component": 0.0,
+        "Green Component": 0.8,
+        "Blue Component": 0.0,
+        "Alpha Component": 1.0
+      },
+      "Use Underline Color": false,
+      "Underline Color": {
+        "Red Component": 0.0,
+        "Green Component": 0.0,
+        "Blue Component": 0.0,
+        "Alpha Component": 1.0
+      },
+      "Smart Cursor Color": true,
+      "Minimum Contrast": 0.0,
+      "Cursor Boost": 0.0,
+      "Blinking Cursor": false,
+      "Use Bright Bold": true,
+      "Use Bold Font": false,
+      "Use Italic Font": true,
+      "Use Thin Strokes": false,
+      "ASCII Anti Aliased": true,
+      "Non-ASCII Anti Aliased": true,
+      "Ambiguous Double Width": false,
+      "Draw Powerline Glyphs": true,
+      "Staminate": false,
+      "Unicode Version": 9,
+      "Use Cursor Guide": true,
+      "Cursor Guide Color": {
+        "Red Component": 0.0,
+        "Green Component": 0.8,
+        "Blue Component": 0.0,
+        "Alpha Component": 0.3
+      },
+      "Badge Text": "DEV",
+      "Badge Color": {
+        "Red Component": 0.0,
+        "Green Component": 0.8,
+        "Blue Component": 0.0,
+        "Alpha Component": 1.0
+      },
+      "Use Tab Color": true,
+      "Tab Color": {
+        "Red Component": 0.0,
+        "Green Component": 0.8,
+        "Blue Component": 0.0,
+        "Alpha Component": 1.0
+      },
+      "Triggers": [
+        {
+          "Partial String": "ERROR",
+          "Action": "Highlight Text",
+          "Parameter": "Red Background"
+        },
+        {
+          "Partial String": "WARNING",
+          "Action": "Highlight Text",
+          "Parameter": "Yellow Background"
+        },
+        {
+          "Partial String": "SUCCESS",
+          "Action": "Highlight Text",
+          "Parameter": "Green Background"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+# System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Sensitive configuration files
+.env
+.env.local
+.env.*.local
+secrets/
+private/
+
+# Backup files
+*.bak
+*.backup
+*.orig
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# Logs
+*.log
+logs/
+
+# Node modules (if any)
+node_modules/
+
+# Ruby
+.bundle/
+vendor/
+
+# Tags file
+tags
+
+# Local overrides
+local/
+local_*

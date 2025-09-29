@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+require 'pathname'
+
+# Add lib directory to load path
+lib_path = File.expand_path('../lib', __dir__)
+$LOAD_PATH.unshift(lib_path) unless $LOAD_PATH.include?(lib_path)
+
+require 'dotfiles_sync'
+
+# Parse command line options
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: dotfiles-sync [options]"
+
+  opts.on("-d", "--dry-run", "Show what would be done without making changes") do
+    options[:dry_run] = true
+  end
+
+  opts.on("-v", "--verbose", "Show detailed output") do
+    options[:verbose] = true
+  end
+
+  opts.on("-f", "--force", "Skip confirmations and force installation") do
+    options[:force] = true
+  end
+
+  opts.on("-b", "--backup-dir DIR", "Custom backup directory") do |dir|
+    options[:backup_dir] = dir
+  end
+
+  opts.on("-h", "--help", "Show this help message") do
+    puts opts
+    exit
+  end
+end.parse!
+
+# Create and run the sync
+sync = DotfilesSync.new(options)
+sync.run
