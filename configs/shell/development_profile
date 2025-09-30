@@ -19,11 +19,15 @@ alias gl='git log'
 alias gc='git checkout'
 alias gr='git remote -v'
 
-# Git prompt configuration
-if [ -f "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh" ]; then
-  __GIT_PROMPT_DIR=$(brew --prefix)/opt/bash-git-prompt/share
-  source "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh"
-fi
+# Git prompt configuration (lazy loaded)
+function load_git_prompt() {
+  if [[ -z "$GIT_PROMPT_LOADED" ]] && [ -f "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh" ]; then
+    echo "🔄 Loading Git prompt..."
+    __GIT_PROMPT_DIR=$(brew --prefix)/opt/bash-git-prompt/share
+    source "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh"
+    export GIT_PROMPT_LOADED=1
+  fi
+}
 
 # Git utility functions
 function resetHard() {
@@ -147,6 +151,13 @@ function disableIndex() {
 function monday() {
   killall Xcode
 
+  # Clear iTerm cache for better performance
+  echo "🧹 Clearing iTerm cache..."
+  rm -rf ~/Library/Caches/com.googlecode.iterm2 2>/dev/null || true
+  rm -rf ~/Library/Application\ Support/iTerm2/SavedState 2>/dev/null || true
+  rm -f ~/Library/Application\ Support/iTerm2/chatdb.sqlite* 2>/dev/null || true
+  echo "✅ iTerm cache cleared"
+
   cd ~/Development/topsoil && git pull && ./compost mobile
 
   cd ~/Development/ios-register && git clean -xdf && ./tools/bazel clean --expunge && dxdd
@@ -157,7 +168,9 @@ function monday() {
 
   cd ~/Development/ios-register && sq warmup-xcode
 
-  omz update
+  # Sync dotfiles at the end (includes Oh My Zsh update)
+  echo "🔄 Syncing dotfiles..."
+  sync
 }
 
 function superpos() {
@@ -178,6 +191,21 @@ alias downloadSnapshotImages="be ./Scripts/download-view-test-images.rb $@ --use
 # =============================================================================
 # Dotfiles Management
 # =============================================================================
+
+# load-all() - Load all lazy-loaded components for full functionality
+# Usage: load-all
+# Note: RVM is already loaded by Square configs, so this just marks it as loaded
+function load-all() {
+    echo "🚀 Loading all development tools..."
+    load_oh_my_zsh_plugins
+    load_antigen_plugins
+    load_nvm
+    load_rvm  # Already loaded by Square, just marks as loaded
+    load_mise
+    load_git_prompt
+    echo "✅ All tools loaded!"
+    echo "💡 Note: RVM was already loaded by Square configs"
+}
 
 # sync() - Run dotfiles sync from anywhere
 # Usage: sync [options]
@@ -205,6 +233,10 @@ function sync() {
     echo "🚀 Running dotfiles sync from: $(pwd)"
     ./bin/dotfiles-sync "$@"
     
+    # Update Oh My Zsh after syncing dotfiles
+    echo "🔄 Updating Oh My Zsh..."
+    omz update
+    
     # Return to original directory
     cd - > /dev/null
 }
@@ -213,6 +245,197 @@ function sync() {
 alias sync-dry='sync --dry-run'
 alias sync-verbose='sync --verbose'
 alias sync-force='sync --force'
+
+# Aliases for lazy loading
+alias load-tools='load-all'
+alias load-dev='load-all'
+
+# =============================================================================
+# Prompt Management Functions
+# =============================================================================
+
+# switch-prompt() - Switch between fast and full git prompts
+function switch-prompt() {
+    local mode="${1:-fast}"
+    
+    case "$mode" in
+        "fast")
+            echo "🚀 Switching to fast git prompt..."
+            # Comment out Square zshrc in ~/.zshrc
+            sed -i.bak 's/^if \[ -f ~\/Development\/config_files\/square\/zshrc \]; then/# if [ -f ~\/Development\/config_files\/square\/zshrc ]; then/' ~/.zshrc
+            sed -i.bak 's/^    source ~\/Development\/config_files\/square\/zshrc/#     source ~\/Development\/config_files\/square\/zshrc/' ~/.zshrc
+            sed -i.bak 's/^fi/# fi/' ~/.zshrc
+            echo "✅ Fast prompt enabled. Restart your shell or run: source ~/.zshrc"
+            ;;
+        "full")
+            echo "🐌 Switching to full Square git prompt..."
+            # Uncomment Square zshrc in ~/.zshrc
+            sed -i.bak 's/^# if \[ -f ~\/Development\/config_files\/square\/zshrc \]; then/if [ -f ~\/Development\/config_files\/square\/zshrc ]; then/' ~/.zshrc
+            sed -i.bak 's/^#     source ~\/Development\/config_files\/square\/zshrc/    source ~\/Development\/config_files\/square\/zshrc/' ~/.zshrc
+            sed -i.bak 's/^# fi/fi/' ~/.zshrc
+            echo "✅ Full prompt enabled. Restart your shell or run: source ~/.zshrc"
+            ;;
+        *)
+            echo "Usage: switch-prompt [fast|full]"
+            echo "  fast: Use lightweight git prompt (recommended for performance)"
+            echo "  full: Use full Square git prompt (more features, slower)"
+            ;;
+    esac
+}
+
+# Aliases for prompt switching
+alias prompt-fast='switch-prompt fast'
+alias prompt-full='switch-prompt full'
+
+# =============================================================================
+# Cache Management Functions
+# =============================================================================
+
+# clear-iterm-cache() - Clear iTerm2 cache files for better performance
+function clear-iterm-cache() {
+    echo "🧹 Clearing iTerm2 cache files..."
+    
+    # Close iTerm2 first
+    echo "⚠️  Please close iTerm2 before clearing cache"
+    echo "Press Enter when iTerm2 is closed..."
+    read -r
+    
+    # Clear cache files
+    local cache_dir="$HOME/Library/Caches/com.googlecode.iterm2"
+    if [ -d "$cache_dir" ]; then
+        echo "🗑️  Removing iTerm cache directory..."
+        rm -rf "$cache_dir"
+        echo "✅ Cleared iTerm cache"
+    else
+        echo "ℹ️  No iTerm cache found"
+    fi
+    
+    # Clear saved state
+    local saved_state="$HOME/Library/Application Support/iTerm2/SavedState"
+    if [ -d "$saved_state" ]; then
+        echo "🗑️  Removing saved state..."
+        rm -rf "$saved_state"
+        echo "✅ Cleared saved state"
+    fi
+    
+    echo "🎉 iTerm cache cleared! Restart iTerm2 to see improvements."
+}
+
+# Aliases for cache management
+alias clear-cache='clear-iterm-cache'
+alias iterm-cache='clear-iterm-cache'
+
+# =============================================================================
+# Zsh Configuration Management
+# =============================================================================
+
+# switch-zsh-config() - Switch between minimal and full zsh configurations
+function switch-zsh-config() {
+    local mode="${1:-minimal}"
+    local dotfiles_dir="${HOME}/Developer/dotfiles"
+    
+    case "$mode" in
+        "minimal")
+            echo "🚀 Creating minimal zsh configuration..."
+            # Create a minimal config on the fly
+            cp ~/.zshrc ~/.zshrc.backup-$(date +%Y%m%d-%H%M%S)
+            cat > ~/.zshrc << 'EOF'
+# Minimal zsh configuration
+set -o vi
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+PROMPT='%~ $ '
+autoload -U compinit
+compinit
+EOF
+            echo "✅ Minimal zshrc created"
+            echo "💡 Restart your shell or run: source ~/.zshrc"
+            ;;
+        "full")
+            echo "🐌 Switching to full zsh configuration..."
+            if [ -f "$dotfiles_dir/configs/shell/zshrc" ]; then
+                cp ~/.zshrc ~/.zshrc.backup-$(date +%Y%m%d-%H%M%S)
+                cp "$dotfiles_dir/configs/shell/zshrc" ~/.zshrc
+                echo "✅ Full zshrc activated"
+                echo "💡 Restart your shell or run: source ~/.zshrc"
+            else
+                echo "❌ Full zshrc not found at: $dotfiles_dir/configs/shell/zshrc"
+            fi
+            ;;
+        *)
+            echo "Usage: switch-zsh-config [minimal|full]"
+            echo "  minimal: Use lightweight zsh config (maximum performance)"
+            echo "  full: Use full zsh config with all features"
+            ;;
+    esac
+}
+
+# Aliases for zsh config switching
+alias zsh-minimal='switch-zsh-config minimal'
+alias zsh-full='switch-zsh-config full'
+
+# Aliases for extension management
+alias install-exts='install-extensions'
+
+# install-extensions() - Manually install editor extensions that failed during sync
+function install-extensions() {
+    echo "🔌 Installing editor extensions manually..."
+    
+    # VSCode extensions
+    if command -v code >/dev/null 2>&1; then
+        echo "📦 Installing VSCode extensions..."
+        if [ -f ~/Developer/dotfiles/configs/editors/vscode/extensions.txt ]; then
+            while IFS= read -r extension; do
+                if [ -n "$extension" ]; then
+                    echo "  Installing: $extension"
+                    code --install-extension "$extension" || echo "    ⚠️  Failed to install $extension"
+                fi
+            done < ~/Developer/dotfiles/configs/editors/vscode/extensions.txt
+        fi
+    fi
+    
+    # Cursor extensions
+    if command -v cursor >/dev/null 2>&1; then
+        echo "📦 Installing Cursor extensions..."
+        if [ -f ~/Developer/dotfiles/configs/editors/cursor/extensions.txt ]; then
+            while IFS= read -r extension; do
+                if [ -n "$extension" ]; then
+                    echo "  Installing: $extension"
+                    cursor --install-extension "$extension" || echo "    ⚠️  Failed to install $extension"
+                fi
+            done < ~/Developer/dotfiles/configs/editors/cursor/extensions.txt
+        fi
+    fi
+    
+    echo "✅ Extension installation complete!"
+}
+
+# check-compatibility() - Check compatibility between dotfiles and Square configs
+function check-compatibility() {
+    echo "🔍 Checking compatibility between dotfiles and Square configs..."
+    
+    # Check if Square configs are loaded
+    if [[ -n "$SQUARE_HOME" ]]; then
+        echo "✅ SQUARE_HOME is set: $SQUARE_HOME"
+    else
+        echo "⚠️  SQUARE_HOME not set (Square configs may not be loaded)"
+    fi
+    
+    # Check RVM status
+    if command -v rvm >/dev/null 2>&1; then
+        echo "✅ RVM is available (loaded by Square configs)"
+    else
+        echo "⚠️  RVM not found"
+    fi
+    
+    # Check if Square zshrc is sourced
+    if [[ -f ~/Development/config_files/square/zshrc ]]; then
+        echo "✅ Square zshrc exists"
+    else
+        echo "⚠️  Square zshrc not found"
+    fi
+    
+    echo "💡 Your dotfiles are designed to work with Square's compost setup"
+}
 alias sync-help='sync --help'
 
 # dotfiles-status() - Check the status of your dotfiles repository

@@ -267,6 +267,14 @@ This configuration includes several Square development tools and workflows:
 
 ### Common Issues
 
+**VSCode Extension Installation Errors:**
+Some extensions may fail to install due to VSCode internal errors (like "FATAL ERROR: v8::ToLocalChecked Empty MaybeLocal"). This is a known VSCode issue, not a problem with your dotfiles.
+
+**Solutions:**
+1. **Automatic**: The sync script now handles these errors gracefully and continues
+2. **Manual**: Use `install-extensions` or `install-exts` to retry failed extensions
+3. **Individual**: Install specific extensions with `code --install-extension <extension-id>`
+
 **Vim plugins not loading:**
 ```bash
 # Reinstall vim-plug

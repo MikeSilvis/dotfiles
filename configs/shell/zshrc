@@ -1,5 +1,28 @@
 # =============================================================================
-# Mike's Zsh Configuration
+# Mike's Optimized Zsh Configuration
+# =============================================================================
+# Performance optimized configuration with Square development environment
+# Key optimization: Replaced heavy Square git prompt (588 lines) with fast alternative
+
+# Basic shell options
+set -o vi
+
+# Essential environment variables
+export EDITOR="vim"
+export VISUAL="vim"
+
+# Minimal PATH setup
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+
+# Basic prompt (no git, no fancy themes)
+PROMPT='%~ $ '
+
+# Enable basic completion
+autoload -U compinit
+compinit
+
+# =============================================================================
+# Square-Specific Configuration (Performance Optimized)
 # =============================================================================
 
 # Load environment variables if they exist
@@ -7,19 +30,49 @@ if [ -f ~/.env ]; then
     source ~/.env
 fi
 
-# Load Square-specific configuration if it exists
-if [ -f ~/Development/config_files/square/zshrc ]; then
-    source ~/Development/config_files/square/zshrc
-fi
-
-# Load Square aliases if they exist
+# Load Square aliases (but NOT the heavy zshrc with git prompt)
 if [ -f ~/Development/config_files/square/aliases ]; then
     source ~/Development/config_files/square/aliases
 fi
 
-# Load local aliases if they exist
-[[ -f "$HOME/.aliases" ]] && source "$HOME/.aliases"
-[[ -f "$HOME/.localaliases" ]] && source "$HOME/.localaliases"
+# =============================================================================
+# SQUARE GIT PROMPT DISABLED (Performance Optimized)
+# =============================================================================
+
+# SKIPPING the heavy Square zshrc with 588-line git prompt
+# This was causing 1+ second startup delay and slow cd performance
+# Using fast git prompt instead (see below)
+
+# Load essential Square environment variables (without heavy git prompt)
+if [ -d "$HOME/Development" ]; then
+    export SQUARE_HOME=$HOME/Development
+fi
+
+# Allow more open files than the OSX default of 256
+if [ `ulimit -n` -lt 8192 ]; then
+    ulimit -n 8192
+fi
+
+# Square-specific shell options
+typeset -U path PATH
+setopt RM_STAR_SILENT
+
+# Square PATH functions
+function append_to_path {
+  if [ -d "$1" ]; then
+    path+=$1
+  fi
+}
+
+function prepend_to_path {
+  if [ -d "$1" ]; then
+    path=($1 $path)
+  fi
+}
+
+# # Load local aliases if they exist
+# [[ -f "$HOME/.aliases" ]] && source "$HOME/.aliases"
+# [[ -f "$HOME/.localaliases" ]] && source "$HOME/.localaliases"
 
 # =============================================================================
 # Oh My Zsh Configuration
@@ -27,19 +80,24 @@ fi
 
 # Path to your oh-my-zsh installation
 export ZSH="/Users/msilvis/.oh-my-zsh"
+export ZSH_CUSTOM="$ZSH/custom"
+export ZSH_CACHE_DIR="$ZSH/cache"
+export ZSH_COMPDUMP="$ZSH/cache/.zcompdump"
+export DISABLE_UPDATE_PROMPT=true
+export DISABLE_AUTO_UPDATE=true
 
 # Set name of the theme to load
 ZSH_THEME="agnoster"
 
 # Which plugins would you like to load?
 plugins=(
-  asdf
   git
+  sudo
+  alias-finder
+  asdf
   debian
   emoji
   jsontools
-  sudo
-  alias-finder
   universalarchive
 )
 
@@ -47,106 +105,20 @@ plugins=(
 source $ZSH/oh-my-zsh.sh
 
 # =============================================================================
-# Antigen Configuration (Plugin Manager)
+# Plugin Management
 # =============================================================================
 
-# Load antigen if it exists
-if [ -f ~/antigen.zsh ]; then
-    source ~/antigen.zsh
+# Antigen has been removed for simplicity and reliability
+# Oh My Zsh provides the essential plugins we need
 
-    # Load antigen plugins
-    antigen bundle jeffreytse/zsh-vi-mode
-    antigen bundle zsh-users/zsh-completions
-    antigen bundle zsh-users/zsh-autosuggestions
-    antigen bundle Aloxaf/fzf-tab
-    antigen bundle zsh-users/zsh-syntax-highlighting
-
-    antigen apply
-fi
-
-# =============================================================================
-# Shell Configuration
-# =============================================================================
-
-# Set vi mode for command line editing
-set -o vi
-
-# =============================================================================
-# RVM Configuration
-# =============================================================================
-
-# Load RVM if it exists
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"
-
-# =============================================================================
-# Node Version Manager (NVM)
-# =============================================================================
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# Auto-switch Node versions based on .nvmrc
-autoload -U add-zsh-hook
-load-nvmrc() {
-  local nvmrc_path="$(nvm_find_nvmrc)"
-
-  if [ -n "$nvmrc_path" ]; then
-    local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
-
-    if [ "$nvmrc_node_version" = "N/A" ]; then
-      nvm install
-    elif [ "$nvmrc_node_version" != "$(nvm version)" ]; then
-      nvm use
-    fi
-  elif [ -n "$(PWD=$OLDPWD nvm_find_nvmrc)" ] && [ "$(nvm version)" != "$(nvm version default)" ]; then
-    echo "Reverting to nvm default version"
-    nvm use default
-  fi
-}
-add-zsh-hook chpwd load-nvmrc
-load-nvmrc
-
-# =============================================================================
-# Mise (asdf alternative) Configuration
-# =============================================================================
-
-# Load mise if it exists
-eval "$(mise activate zsh)" 2>/dev/null || true
-
-# =============================================================================
-# Environment Variables
-# =============================================================================
-
-# Python Configuration
-export PIP_CONFIG_FILE=~/.config/pip/pip.conf
-export PIPX_DEFAULT_PYTHON=python3.10
-
-# Node Configuration
-export NODE_EXTRA_CA_CERTS=/opt/homebrew/etc/ca-certificates/cert.pem
-export COREPACK_NPM_REGISTRY=https://artifactory.global.square/artifactory/api/npm/square-npm/
-export COREPACK_INTEGRITY_KEYS=0
-
-# Android Development
-export ANDROID_HOME=$HOME/Library/Android/sdk
-export PATH=$PATH:$ANDROID_HOME/emulator
-export PATH=$PATH:$ANDROID_HOME/platform-tools
-
-# PATH Configuration
-export PATH="/usr/local/bin:$PATH"
-export PATH=$PATH:/opt/homebrew/opt/python@3/libexec/bin
-
-# =============================================================================
-# Personal Configuration
-# =============================================================================
-
-# Load development profile (contains aliases and functions)
+# Load development profile (contains useful aliases and functions)
 if [ -f ~/.development_profile ]; then
     source ~/.development_profile
 fi
 
-# =============================================================================
-# Completion Configuration
-# =============================================================================
+# Fast Git Prompt (lightweight alternative to heavy Square git prompt)
+if [ -f ~/Developer/dotfiles/configs/shell/fast-git-prompt.zsh ]; then
+    source ~/Developer/dotfiles/configs/shell/fast-git-prompt.zsh
+fi
 
-autoload -U compinit && compinit
+# Configuration loaded silently

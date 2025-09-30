@@ -4,6 +4,7 @@
 require 'fileutils'
 require 'optparse'
 require 'time'
+require 'open3'
 
 # Main DotfilesSync class that handles all synchronization operations
 class DotfilesSync
@@ -417,7 +418,7 @@ class DotfilesSync
           extensions = File.readlines(extensions_file).map(&:strip).reject(&:empty?)
           extensions.each do |extension|
             puts "  📦 Installing #{extension}..."
-            run_command("cursor --install-extension #{extension}", "Installing Cursor extension: #{extension}")
+            install_cursor_extension(extension)
           end
         end
       end
@@ -456,12 +457,70 @@ class DotfilesSync
           extensions = File.readlines(extensions_file).map(&:strip).reject(&:empty?)
           extensions.each do |extension|
             puts "  📦 Installing #{extension}..."
-            run_command("code --install-extension #{extension}", "Installing VSCode extension: #{extension}")
+            install_vscode_extension(extension)
           end
         end
       end
     end
 
     puts "🔄 Please restart your editors to apply configuration changes"
+  end
+
+  def install_vscode_extension(extension)
+    # Check if extension is already installed
+    stdout, stderr, status = Open3.capture3("code --list-extensions")
+    if status.success? && stdout.include?(extension)
+      puts "    ✅ #{extension} already installed"
+      return
+    end
+
+    # Try to install the extension with error handling
+    begin
+      stdout, stderr, status = Open3.capture3("code --install-extension #{extension}")
+      
+      if status.success?
+        puts "    ✅ Successfully installed #{extension}"
+      else
+        # Check if it's a VSCode internal error (like the one you encountered)
+        if stderr.include?("FATAL ERROR") || stderr.include?("Abort trap") || stderr.include?("already installed")
+          puts "    ⚠️  #{extension} installation had issues (VSCode internal error)"
+          puts "    💡 You can manually install it later with: code --install-extension #{extension}"
+        else
+          puts "    ❌ Failed to install #{extension}: #{stderr.strip}"
+        end
+      end
+    rescue StandardError => e
+      puts "    ⚠️  Error installing #{extension}: #{e.message}"
+      puts "    💡 You can manually install it later with: code --install-extension #{extension}"
+    end
+  end
+
+  def install_cursor_extension(extension)
+    # Check if extension is already installed
+    stdout, stderr, status = Open3.capture3("cursor --list-extensions")
+    if status.success? && stdout.include?(extension)
+      puts "    ✅ #{extension} already installed"
+      return
+    end
+
+    # Try to install the extension with error handling
+    begin
+      stdout, stderr, status = Open3.capture3("cursor --install-extension #{extension}")
+      
+      if status.success?
+        puts "    ✅ Successfully installed #{extension}"
+      else
+        # Check if it's a Cursor internal error
+        if stderr.include?("FATAL ERROR") || stderr.include?("Abort trap") || stderr.include?("already installed")
+          puts "    ⚠️  #{extension} installation had issues (Cursor internal error)"
+          puts "    💡 You can manually install it later with: cursor --install-extension #{extension}"
+        else
+          puts "    ❌ Failed to install #{extension}: #{stderr.strip}"
+        end
+      end
+    rescue StandardError => e
+      puts "    ⚠️  Error installing #{extension}: #{e.message}"
+      puts "    💡 You can manually install it later with: cursor --install-extension #{extension}"
+    end
   end
 end
