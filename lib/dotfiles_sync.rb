@@ -120,12 +120,10 @@ class DotfilesSync
     nerd_font_installed = system("fc-list | grep -i 'meslolgl.*nerd' > /dev/null 2>&1") || 
                          Dir.glob("#{ENV['HOME']}/Library/Fonts/MesloLGL*NerdFont*").any?
     
-    unless nerd_font_installed
-      puts "📦 Installing Nerd Fonts via Homebrew..."
-      run_command("brew tap homebrew/cask-fonts", "Adding font cask tap")
-      run_command("brew install --cask font-meslo-lg-nerd-font", "Installing MesloLGL Nerd Font")
-    else
+    if nerd_font_installed
       puts "✅ Nerd Fonts already installed"
+    else
+      puts "📝 Nerd Fonts will be installed from local font files during sync"
     end
   end
 
