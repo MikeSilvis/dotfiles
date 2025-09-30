@@ -21,18 +21,18 @@ class DotfilesSync
     puts "🚀 Welcome to Mike's Personal Dotfiles Sync!"
     puts "📁 Backup directory: #{@backup_dir}" unless @dry_run
     puts "🔍 Dry run mode: #{@dry_run}" if @dry_run
-    puts "💡 This sync focuses on personal settings only."
-    puts "   Run 'compost mobile' first for system dependencies."
+    puts "💡 This sync will install system dependencies and personal settings."
     puts
 
     begin
+      install_system_dependencies
       copy_personal_dotfiles
       install_fonts_and_themes
       install_iterm2_config
       install_editor_configs
       install_xcode_config
       puts "✅ Personal settings sync completed successfully!"
-      puts "💡 Remember to run 'compost mobile' for system dependencies if needed."
+      puts "💡 You may need to restart your terminal or run 'source ~/.zshrc' to apply changes."
     rescue StandardError => e
       puts "❌ Sync failed: #{e.message}"
       puts "💡 Run with --verbose for more details" unless @verbose
@@ -41,6 +41,76 @@ class DotfilesSync
   end
 
   private
+
+  def install_system_dependencies
+    puts "🔧 Checking and installing system dependencies..."
+    
+    check_and_install_homebrew
+    check_and_install_zsh
+    check_and_install_oh_my_zsh
+    check_and_install_oh_my_posh
+  end
+
+  def check_and_install_homebrew
+    puts "🍺 Checking Homebrew installation..."
+    
+    unless system("which brew > /dev/null 2>&1")
+      puts "📦 Installing Homebrew..."
+      unless @dry_run
+        system('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"')
+        # Add Homebrew to PATH for current session
+        ENV['PATH'] = "/opt/homebrew/bin:/usr/local/bin:#{ENV['PATH']}"
+      end
+    else
+      puts "✅ Homebrew already installed"
+    end
+  end
+
+  def check_and_install_zsh
+    puts "🐚 Checking zsh installation..."
+    
+    unless system("which zsh > /dev/null 2>&1")
+      puts "📦 Installing zsh via Homebrew..."
+      run_command("brew install zsh", "Installing zsh")
+      
+      # Set zsh as default shell if not already
+      current_shell = ENV['SHELL']
+      unless current_shell&.include?('zsh')
+        puts "🔄 Setting zsh as default shell..."
+        unless @dry_run
+          zsh_path = `which zsh`.strip
+          system("sudo chsh -s #{zsh_path} #{ENV['USER']}")
+        end
+      end
+    else
+      puts "✅ zsh already installed"
+    end
+  end
+
+  def check_and_install_oh_my_zsh
+    puts "🎨 Checking Oh My Zsh installation..."
+    
+    oh_my_zsh_dir = "#{ENV['HOME']}/.oh-my-zsh"
+    unless Dir.exist?(oh_my_zsh_dir)
+      puts "📦 Installing Oh My Zsh..."
+      unless @dry_run
+        system('sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended')
+      end
+    else
+      puts "✅ Oh My Zsh already installed"
+    end
+  end
+
+  def check_and_install_oh_my_posh
+    puts "✨ Checking Oh My Posh installation..."
+    
+    unless system("which oh-my-posh > /dev/null 2>&1")
+      puts "📦 Installing Oh My Posh via Homebrew..."
+      run_command("brew install oh-my-posh", "Installing Oh My Posh")
+    else
+      puts "✅ Oh My Posh already installed"
+    end
+  end
 
   def run_command(command, description = nil)
     puts "🔧 #{description || command}" if @verbose

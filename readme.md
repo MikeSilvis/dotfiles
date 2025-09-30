@@ -6,19 +6,12 @@ A simplified collection of personal development environment configurations for m
 
 ### Prerequisites
 - macOS (tested on macOS 12+)
-- Square development environment setup (compost mobile)
 - Ruby (for the installer script)
 - Git
 
 ### Installation
 
-1. **First, set up Square's development environment:**
-   ```bash
-   cd ~/Development/topsoil
-   ./compost mobile
-   ```
-
-2. **Clone and sync your personal dotfiles:**
+1. **Clone and sync your personal dotfiles:**
    ```bash
    git clone https://github.com/msilvis/dotfiles.git ~/Developer/dotfiles
    cd ~/Developer/dotfiles
@@ -27,7 +20,18 @@ A simplified collection of personal development environment configurations for m
    
    **Note**: After this first run, you can use `sync` from anywhere!
    
-   **This sync only handles personal settings** - it doesn't install system dependencies that compost mobile already handles.
+   **The sync script will automatically install system dependencies** including:
+   - Homebrew (if not installed)
+   - zsh (if not installed)
+   - Oh My Zsh (if not installed)
+   - Oh My Posh (if not installed)
+   - All your personal configuration files
+
+2. **For Square development environment (optional):**
+   ```bash
+   cd ~/Development/topsoil
+   ./compost mobile
+   ```
 
 3. **Configure environment variables:**
    ```bash
