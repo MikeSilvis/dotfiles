@@ -215,16 +215,27 @@ function load-all() {
 #   sync --verbose          # Detailed output
 #   sync-dry                # Alias for sync --dry-run
 function sync() {
-    # Get the directory where this script is located
-    local DOTFILES_DIR="${HOME}/Developer/dotfiles"
+    # Dynamically find the dotfiles directory
+    local DOTFILES_DIR
     
-    # Check if dotfiles directory exists
-    if [ ! -d "$DOTFILES_DIR" ]; then
-        echo "❌ Dotfiles directory not found at: $DOTFILES_DIR"
-        echo "💡 Please clone your dotfiles repository first:"
-        echo "   git clone https://github.com/msilvis/dotfiles.git ~/Developer/dotfiles"
+    # First, try to find it relative to current directory
+    if [ -f "./bin/dotfiles-sync" ]; then
+        DOTFILES_DIR="$(pwd)"
+    # Then try common locations
+    elif [ -d "${HOME}/Developer/dotfiles" ]; then
+        DOTFILES_DIR="${HOME}/Developer/dotfiles"
+    elif [ -d "${HOME}/Development/dotfiles" ]; then
+        DOTFILES_DIR="${HOME}/Development/dotfiles"
+    elif [ -d "${HOME}/dotfiles" ]; then
+        DOTFILES_DIR="${HOME}/dotfiles"
+    else
+        echo "❌ Dotfiles directory not found!"
+        echo "💡 Please run this command from your dotfiles directory, or clone it first:"
+        echo "   git clone https://github.com/msilvis/dotfiles.git ~/Development/dotfiles"
         return 1
     fi
+    
+    echo "🔍 Using dotfiles directory: $DOTFILES_DIR"
     
     # Change to dotfiles directory
     cd "$DOTFILES_DIR" || return 1
@@ -337,7 +348,21 @@ alias cursor-new='cursor'             # Open new Cursor window
 # switch-zsh-config() - Switch between minimal and full zsh configurations
 function switch-zsh-config() {
     local mode="${1:-minimal}"
-    local dotfiles_dir="${HOME}/Developer/dotfiles"
+    # Dynamically find the dotfiles directory
+    local dotfiles_dir
+    
+    if [ -f "./bin/dotfiles-sync" ]; then
+        dotfiles_dir="$(pwd)"
+    elif [ -d "${HOME}/Developer/dotfiles" ]; then
+        dotfiles_dir="${HOME}/Developer/dotfiles"
+    elif [ -d "${HOME}/Development/dotfiles" ]; then
+        dotfiles_dir="${HOME}/Development/dotfiles"
+    elif [ -d "${HOME}/dotfiles" ]; then
+        dotfiles_dir="${HOME}/dotfiles"
+    else
+        echo "❌ Dotfiles directory not found!"
+        return 1
+    fi
     
     case "$mode" in
         "minimal")
@@ -390,13 +415,26 @@ function install-extensions() {
     # Cursor extensions
     if command -v cursor >/dev/null 2>&1; then
         echo "📦 Installing Cursor extensions..."
-        if [ -f ~/Developer/dotfiles/configs/editors/cursor/extensions.txt ]; then
+        # Dynamically find the dotfiles directory
+        local dotfiles_dir
+        
+        if [ -f "./bin/dotfiles-sync" ]; then
+            dotfiles_dir="$(pwd)"
+        elif [ -d "${HOME}/Developer/dotfiles" ]; then
+            dotfiles_dir="${HOME}/Developer/dotfiles"
+        elif [ -d "${HOME}/Development/dotfiles" ]; then
+            dotfiles_dir="${HOME}/Development/dotfiles"
+        elif [ -d "${HOME}/dotfiles" ]; then
+            dotfiles_dir="${HOME}/dotfiles"
+        fi
+        
+        if [ -f "$dotfiles_dir/configs/editors/cursor/extensions.txt" ]; then
             while IFS= read -r extension; do
                 if [ -n "$extension" ]; then
                     echo "  Installing: $extension"
                     cursor --install-extension "$extension" || echo "    ⚠️  Failed to install $extension"
                 fi
-            done < ~/Developer/dotfiles/configs/editors/cursor/extensions.txt
+            done < "$dotfiles_dir/configs/editors/cursor/extensions.txt"
         fi
     fi
     
@@ -434,7 +472,21 @@ alias sync-help='sync --help'
 
 # dotfiles-status() - Check the status of your dotfiles repository
 function dotfiles-status() {
-    local DOTFILES_DIR="${HOME}/Developer/dotfiles"
+    # Dynamically find the dotfiles directory
+    local DOTFILES_DIR
+    
+    if [ -f "./bin/dotfiles-sync" ]; then
+        DOTFILES_DIR="$(pwd)"
+    elif [ -d "${HOME}/Developer/dotfiles" ]; then
+        DOTFILES_DIR="${HOME}/Developer/dotfiles"
+    elif [ -d "${HOME}/Development/dotfiles" ]; then
+        DOTFILES_DIR="${HOME}/Development/dotfiles"
+    elif [ -d "${HOME}/dotfiles" ]; then
+        DOTFILES_DIR="${HOME}/dotfiles"
+    else
+        echo "❌ Dotfiles directory not found!"
+        return 1
+    fi
     
     if [ ! -d "$DOTFILES_DIR" ]; then
         echo "❌ Dotfiles directory not found at: $DOTFILES_DIR"

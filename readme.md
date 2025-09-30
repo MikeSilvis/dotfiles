@@ -25,7 +25,8 @@ A simplified collection of personal development environment configurations for m
    - zsh (if not installed)
    - Oh My Zsh (if not installed)
    - Oh My Posh (if not installed)
-   - All your personal configuration files
+   - MesloLGL Nerd Fonts (if not installed)
+   - All your personal configuration files and fonts
 
 2. **For Square development environment (optional):**
    ```bash

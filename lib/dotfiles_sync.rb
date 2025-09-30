@@ -49,6 +49,7 @@ class DotfilesSync
     check_and_install_zsh
     check_and_install_oh_my_zsh
     check_and_install_oh_my_posh
+    check_and_install_nerd_fonts
   end
 
   def check_and_install_homebrew
@@ -109,6 +110,22 @@ class DotfilesSync
       run_command("brew install oh-my-posh", "Installing Oh My Posh")
     else
       puts "✅ Oh My Posh already installed"
+    end
+  end
+
+  def check_and_install_nerd_fonts
+    puts "🎨 Checking Nerd Fonts installation..."
+    
+    # Check if MesloLGL Nerd Font is installed
+    nerd_font_installed = system("fc-list | grep -i 'meslolgl.*nerd' > /dev/null 2>&1") || 
+                         Dir.glob("#{ENV['HOME']}/Library/Fonts/MesloLGL*NerdFont*").any?
+    
+    unless nerd_font_installed
+      puts "📦 Installing Nerd Fonts via Homebrew..."
+      run_command("brew tap homebrew/cask-fonts", "Adding font cask tap")
+      run_command("brew install --cask font-meslo-lg-nerd-font", "Installing MesloLGL Nerd Font")
+    else
+      puts "✅ Nerd Fonts already installed"
     end
   end
 
