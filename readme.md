@@ -1,30 +1,33 @@
-# Mike's Dotfiles
+# Mike's Personal Dotfiles
 
-A comprehensive collection of development environment configurations for macOS, optimized for iOS development with Square's toolchain.
+A simplified collection of personal development environment configurations for macOS, designed to work seamlessly with Square's development toolchain.
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - macOS (tested on macOS 12+)
+- Square development environment setup (compost mobile)
 - Ruby (for the installer script)
 - Git
 
 ### Installation
 
-1. **Clone the repository:**
+1. **First, set up Square's development environment:**
+   ```bash
+   cd ~/Development/topsoil
+   ./compost mobile
+   ```
+
+2. **Clone and sync your personal dotfiles:**
    ```bash
    git clone https://github.com/msilvis/dotfiles.git ~/Developer/dotfiles
    cd ~/Developer/dotfiles
-   ```
-
-2. **Run the initial sync (this installs the `sync()` function):**
-   ```bash
    ./bin/dotfiles-sync
    ```
    
    **Note**: After this first run, you can use `sync` from anywhere!
    
-   **Troubleshooting**: If you see VSCode extension installation errors, this is normal and doesn't affect the main functionality. The extensions are already installed.
+   **This sync only handles personal settings** - it doesn't install system dependencies that compost mobile already handles.
 
 3. **Configure environment variables:**
    ```bash
@@ -76,22 +79,25 @@ dotfiles/
 
 ## 🛠️ What Gets Installed
 
-### Core Tools
+### Personal Settings Only
+This dotfiles sync focuses on personal configurations and assumes you've already run `compost mobile` for system dependencies.
+
+### Personal Configurations
+- **Shell Configuration** - Personal zshrc that sources Square's config first
+- **Development Profile** - Personal aliases and functions
+- **Vim Configuration** - Personal vimrc with plugins and color scheme
+- **Git Configuration** - Personal gitconfig and gitignore_global
+- **SSH Configuration** - Personal SSH client configuration
+- **Editor Settings** - Cursor and VSCode personal settings and extensions
+- **iTerm2 Configuration** - Personal color schemes and profiles
+- **Xcode Configuration** - Personal color themes and preferences
+- **Fonts** - Personal font collection
+
+### System Dependencies (Handled by compost mobile)
 - **Homebrew** - Package manager
-- **rbenv** - Ruby version manager (replaces RVM)
-- **Oh My Zsh** - Zsh framework with themes and plugins
-- **Vundle and Pathogen** - Vim plugin managers
-
-### Development Tools
-- Go, Node.js, npm
-- ack, vim, cmake, watchman
-- bash-git-prompt for enhanced Git status
-
-### Vim Plugins
-- **File Management**: NERDTree, CtrlP
-- **Git Integration**: vim-fugitive, vim-gitgutter
-- **Language Support**: TypeScript, Kotlin, Swift, JSON, Ruby on Rails
-- **Productivity**: SuperTab, NERDCommenter, ALE (linting)
+- **Ruby/RVM** - Ruby version management
+- **Development Tools** - Git, Java, Android tools, Bazel, etc.
+- **Square Environment** - Square-specific tools and configurations
 
 ### iTerm2 Configuration
 - **Color Schemes**: Smyck, Tokyo Night, and other popular themes
@@ -110,13 +116,36 @@ dotfiles/
 - **Ack**: Search tool configuration
 
 ### Shell Features
-- **Oh My Zsh** with Agnoster theme
-- **Antigen** for additional plugins
+- **Oh My Zsh** with plugins (theme disabled in favor of Oh My Posh)
+- **Oh My Posh** with Gruvbox theme for beautiful, functional prompts
 - **NVM** for Node.js version management
 - **Mise** (asdf alternative) for tool version management
 - **Vi mode** for command line editing
 
 ## ⚙️ Configuration
+
+### Integration with Square's Config
+
+This dotfiles setup follows Square's recommended pattern for personal configurations:
+
+1. **Square's config is loaded first** - The generated `.zshrc` sources Square's configuration
+2. **Personal settings are added below** - Your customizations are added after Square's config
+3. **Override pattern** - Personal settings can override Square's defaults when needed
+
+The generated `.zshrc` structure:
+```bash
+#######################################################
+# load Square specific zshrc; please don't change this bit.
+#######################################################
+source ~/Development/config_files/square/zshrc
+#######################################################
+
+###########################################
+# Feel free to make your own changes below.
+###########################################
+
+# Your personal configurations go here...
+```
 
 ### Environment Variables
 
@@ -137,7 +166,25 @@ export SANDBOX_APPLE_MERCHANT_ID='merchant.com.yourname.squareup.apple-pay'
 The configuration supports both bash and zsh:
 
 - **Bash**: Uses `~/.bash_profile` which sources personal configs
-- **Zsh**: Uses `~/.zshrc` with Oh My Zsh and Antigen plugins
+- **Zsh**: Uses `~/.zshrc` with Oh My Zsh plugins and Oh My Posh Gruvbox theme
+
+### Oh My Posh Configuration
+
+The terminal prompt uses the official Oh My Posh Gruvbox theme:
+
+- **Theme**: [Gruvbox](https://github.com/JanDeDobbeleer/oh-my-posh/blob/main/themes/gruvbox.omp.json) (warm, muted colors)
+- **Features**: Git integration, directory display, user@host info, exit status
+- **Configuration**: Loaded directly from the official Oh My Posh repository
+
+To change themes or customize the prompt, modify the Oh My Posh configuration in `~/.zshrc`:
+
+```bash
+# Current configuration
+PROMPT='$(oh-my-posh print primary --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/gruvbox.omp.json)'
+
+# To use a different theme, replace the URL with another theme:
+# PROMPT='$(oh-my-posh print primary --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/theme-name.omp.json)'
+```
 
 ### Vim Configuration
 
@@ -244,24 +291,37 @@ This configuration includes several Square development tools and workflows:
 ### Before Migration
 1. **Export your current environment:**
    ```bash
-   # Export installed packages
-   brew bundle dump
-   npm list -g --depth=0 > npm_global_packages.txt
-   
    # Export your current .env (if you have one)
    cp ~/.env ~/env_backup
+   
+   # Note any custom configurations in:
+   # - ~/.aliases
+   # - ~/.localaliases
    ```
 
-2. **Note any custom configurations** in:
-   - `~/.aliases`
-   - `~/.localaliases`
-   - Square-specific configs in `~/Development/config_files/square/`
-
 ### After Migration
-1. **Run the installer** as described above
-2. **Restore your environment variables** from backup
-3. **Install additional packages** if needed
-4. **Verify Square-specific configurations** are working
+1. **Set up Square's development environment first:**
+   ```bash
+   cd ~/Development/topsoil
+   ./compost mobile
+   ```
+
+2. **Clone and sync your personal dotfiles:**
+   ```bash
+   git clone https://github.com/msilvis/dotfiles.git ~/Developer/dotfiles
+   cd ~/Developer/dotfiles
+   ./bin/dotfiles-sync
+   ```
+
+3. **Restore your environment variables:**
+   ```bash
+   cp ~/env_backup ~/.env
+   ```
+
+4. **Restart your terminal** or run:
+   ```bash
+   source ~/.zshrc
+   ```
 
 ## 🐛 Troubleshooting
 

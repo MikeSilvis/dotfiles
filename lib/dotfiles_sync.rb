@@ -18,23 +18,21 @@ class DotfilesSync
   end
 
   def run
-    puts "🚀 Welcome to Mike's Dotfiles Sync!"
+    puts "🚀 Welcome to Mike's Personal Dotfiles Sync!"
     puts "📁 Backup directory: #{@backup_dir}" unless @dry_run
     puts "🔍 Dry run mode: #{@dry_run}" if @dry_run
+    puts "💡 This sync focuses on personal settings only."
+    puts "   Run 'compost mobile' first for system dependencies."
     puts
 
     begin
-      install_homebrew
-      install_ruby_version_manager
-      install_homebrew_packages
-      install_oh_my_zsh
-      setup_vim
-      copy_dotfiles
+      copy_personal_dotfiles
       install_fonts_and_themes
       install_iterm2_config
       install_editor_configs
       install_xcode_config
-      puts "✅ Sync completed successfully!"
+      puts "✅ Personal settings sync completed successfully!"
+      puts "💡 Remember to run 'compost mobile' for system dependencies if needed."
     rescue StandardError => e
       puts "❌ Sync failed: #{e.message}"
       puts "💡 Run with --verbose for more details" unless @verbose
@@ -51,93 +49,11 @@ class DotfilesSync
     system(command) || raise("Command failed: #{command}")
   end
 
-  def install_homebrew
-    puts "🍺 Installing Homebrew..."
-    return if system('which brew > /dev/null 2>&1')
+  def copy_personal_dotfiles
+    puts "📋 Copying personal dotfiles..."
 
-    run_command(
-      '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"',
-      'Installing Homebrew'
-    )
-  end
-
-  def install_ruby_version_manager
-    puts "💎 Installing Ruby version manager (rbenv)..."
-    return if system('which rbenv > /dev/null 2>&1')
-
-    run_command('brew install rbenv ruby-build', 'Installing rbenv and ruby-build')
-    puts "💡 Please add 'eval \"$(rbenv init -)\"' to your shell profile to enable rbenv"
-  end
-
-  def install_homebrew_packages
-    puts "📦 Installing Homebrew packages..."
-    packages = %w[
-      git
-      vim
-      ack
-      cmake
-      watchman
-      go
-      node
-      bash-git-prompt
-    ]
-
-    packages.each do |package|
-      next if system("brew list #{package} > /dev/null 2>&1")
-      run_command("brew install #{package}", "Installing #{package}")
-    end
-  end
-
-  def install_oh_my_zsh
-    puts "🐚 Installing Oh My Zsh..."
-    return if Dir.exist?("#{ENV['HOME']}/.oh-my-zsh")
-
-    run_command(
-      'sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended',
-      'Installing Oh My Zsh'
-    )
-  end
-
-  def setup_vim
-    puts "📝 Setting up Vim..."
-    vim_dir = "#{ENV['HOME']}/.vim"
-
-    unless @dry_run
-      FileUtils.rm_rf(vim_dir) if File.exist?(vim_dir)
-      FileUtils.mkdir_p("#{vim_dir}/autoload")
-      FileUtils.mkdir_p("#{vim_dir}/bundle")
-    end
-
-    # Install Pathogen (plugin manager)
-    puts "🔌 Installing Pathogen..."
-    run_command(
-      "curl -LSso #{vim_dir}/autoload/pathogen.vim https://tpo.pe/pathogen.vim",
-      "Installing Pathogen"
-    )
-
-    # Install Vundle (plugin manager)
-    puts "🔌 Installing Vundle..."
-    run_command(
-      "git clone --depth=1 https://github.com/VundleVim/Vundle.vim.git #{vim_dir}/bundle/Vundle.vim",
-      "Installing Vundle"
-    )
-
-    # Copy color scheme
-    puts "🎨 Copying color scheme..."
-    unless @dry_run
-      FileUtils.mkdir_p("#{vim_dir}/colors")
-      FileUtils.cp('./configs/vim/colors/smyck.vim', "#{vim_dir}/colors/") if File.exist?('./configs/vim/colors/smyck.vim')
-    end
-
-    puts "🔄 Please run :PluginInstall in Vim to install plugins"
-  end
-
-  def copy_dotfiles
-    puts "📋 Copying dotfiles..."
-
-    dotfiles = {
-      './configs/shell/bash_profile' => "#{ENV['HOME']}/.bash_profile",
-      './configs/shell/zshrc' => "#{ENV['HOME']}/.zshrc",
+    # Only copy personal configuration files that don't conflict with Square's setup
+    personal_dotfiles = {
       './configs/shell/development_profile' => "#{ENV['HOME']}/.development_profile",
       './configs/vim/vimrc' => "#{ENV['HOME']}/.vimrc",
       './configs/git/.gitconfig' => "#{ENV['HOME']}/.gitconfig",
@@ -147,7 +63,7 @@ class DotfilesSync
       './configs/.ackrc' => "#{ENV['HOME']}/.ackrc"
     }
 
-    dotfiles.each do |source, target|
+    personal_dotfiles.each do |source, target|
       next unless File.exist?(source)
 
       if File.exist?(target) && !@dry_run
@@ -171,6 +87,61 @@ class DotfilesSync
         end
       end
     end
+
+    # Handle zshrc specially - create a personal version that sources Square's config
+    create_personal_zshrc
+  end
+
+  def create_personal_zshrc
+    puts "🐚 Creating personal zshrc that works with Square's config..."
+
+    zshrc_target = "#{ENV['HOME']}/.zshrc"
+    zshrc_source = './configs/shell/zshrc'
+
+    # Backup existing zshrc if it exists
+    if File.exist?(zshrc_target) && !@dry_run
+      puts "💾 Backing up existing .zshrc..."
+      FileUtils.mkdir_p(@backup_dir)
+      FileUtils.cp(zshrc_target, "#{@backup_dir}/.zshrc")
+    end
+
+    unless @dry_run
+      # Create the personal zshrc that follows Square's override pattern
+      File.open(zshrc_target, 'w') do |f|
+        f.puts "#######################################################"
+        f.puts "# load Square specific zshrc; please don't change this bit."
+        f.puts "#######################################################"
+        f.puts "source ~/Development/config_files/square/zshrc"
+        f.puts "#######################################################"
+        f.puts ""
+        f.puts "###########################################"
+        f.puts "# Feel free to make your own changes below."
+        f.puts "###########################################"
+        f.puts ""
+        f.puts "# load the aliases in config_files files (optional)"
+        f.puts "source ~/Development/config_files/square/aliases"
+        f.puts ""
+        f.puts "[[ -f \"$HOME/.aliases\" ]] && source \"$HOME/.aliases\""
+        f.puts "[[ -f \"$HOME/.localaliases\" ]] && source \"$HOME/.localaliases\""
+        f.puts ""
+        
+        # Add the personal configuration from the source file
+        if File.exist?(zshrc_source)
+          File.readlines(zshrc_source).each do |line|
+            # Skip the header comments and add the personal config
+            next if line.start_with?('# =============================================================================')
+            next if line.start_with?('# Mike\'s Optimized Zsh Configuration')
+            next if line.start_with?('# Performance optimized configuration')
+            next if line.start_with?('# Key optimization:')
+            next if line.strip.empty?
+            
+            f.puts line
+          end
+        end
+      end
+    end
+
+    puts "📄 Created personal .zshrc that sources Square's config first"
   end
 
   def install_fonts_and_themes
