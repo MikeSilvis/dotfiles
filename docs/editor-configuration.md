@@ -1,6 +1,6 @@
 # Editor Configuration Guide
 
-This document describes the Cursor and VSCode configuration included in Mike's dotfiles and how to customize it.
+This document describes the Cursor configuration included in Mike's dotfiles and how to customize it.
 
 ## 📝 Included Editor Configurations
 
@@ -8,12 +8,19 @@ This document describes the Cursor and VSCode configuration included in Mike's d
 - **Settings**: `configs/editors/cursor/settings.json`
 - **Keybindings**: `configs/editors/cursor/keybindings.json`
 - **Extensions**: `configs/editors/cursor/extensions.txt`
+- **Command Line**: `cursor .` to open current directory
+- **Aliases**: `c`, `cursor-here`, `cursor-new` (defined in development profile)
 
-### VSCode
-- **Settings**: `configs/editors/vscode/settings.json`
-- **Extensions**: `configs/editors/vscode/extensions.txt`
 
 ## 🚀 Installation
+
+### Command Line Usage
+The dotfiles include convenient aliases for opening Cursor from the command line:
+
+- `c` - Opens Cursor in the current directory (shortest alias)
+- `cursor-here` - Opens Cursor in the current directory (descriptive alias)
+- `cursor-new` - Opens a new Cursor window
+- `cursor .` - Standard command to open Cursor in current directory
 
 ### Automatic Installation
 Editor configurations are automatically installed when you run the main sync tool:
@@ -43,9 +50,6 @@ To see what would be synced without making changes:
 - **Keybindings**: `~/Library/Application Support/Cursor/User/keybindings.json`
 - **Extensions**: Installed via `cursor --install-extension`
 
-### VSCode Configuration
-- **Settings**: `~/Library/Application Support/Code/User/settings.json`
-- **Extensions**: Installed via `code --install-extension`
 
 ## 🎯 What Gets Synced
 
@@ -76,9 +80,6 @@ To see what would be synced without making changes:
    ```bash
    # For Cursor
    cursor --list-extensions > configs/editors/cursor/extensions.txt
-   
-   # For VSCode
-   code --list-extensions > configs/editors/vscode/extensions.txt
    ```
 3. Commit the updated extensions list
 
@@ -88,9 +89,6 @@ To see what would be synced without making changes:
    ```bash
    # For Cursor
    cp ~/Library/Application\ Support/Cursor/User/settings.json configs/editors/cursor/
-   
-   # For VSCode
-   cp ~/Library/Application\ Support/Code/User/settings.json configs/editors/vscode/
    ```
 3. Commit the updated settings
 
@@ -128,24 +126,24 @@ To see what would be synced without making changes:
 
 ### From Sublime Text
 1. Export Sublime settings and keybindings
-2. Convert to VSCode/Cursor format
+2. Convert to Cursor format
 3. Install equivalent extensions
 
 ### From Atom
 1. Export Atom configuration
-2. Convert to VSCode/Cursor format
+2. Convert to Cursor format
 3. Install equivalent extensions
 
 ### From IntelliJ/WebStorm
 1. Export IntelliJ settings
-2. Convert to VSCode/Cursor format
+2. Convert to Cursor format
 3. Install equivalent extensions
 
 ## 🚨 Troubleshooting
 
 ### Extensions Not Installing
-1. **Check editor installation**: Ensure Cursor/VSCode is properly installed
-2. **Check command line tools**: Ensure `cursor` or `code` commands are available
+1. **Check editor installation**: Ensure Cursor is properly installed
+2. **Check command line tools**: Ensure `cursor` command is available
 3. **Check permissions**: Ensure you have write access to the extensions directory
 
 ### Settings Not Applied
@@ -185,9 +183,9 @@ To see what would be synced without making changes:
 
 ## 🔗 Useful Resources
 
-- [VSCode Settings Reference](https://code.visualstudio.com/docs/getstarted/settings)
-- [VSCode Keybindings Reference](https://code.visualstudio.com/docs/getstarted/keybindings)
-- [VSCode Extensions Marketplace](https://marketplace.visualstudio.com/)
+- [Cursor Settings Reference](https://cursor.sh/docs)
+- [Cursor Keybindings Reference](https://cursor.sh/docs)
+- [Cursor Extensions](https://cursor.sh/docs)
 - [Cursor Documentation](https://cursor.sh/docs)
 
 ## 📞 Support

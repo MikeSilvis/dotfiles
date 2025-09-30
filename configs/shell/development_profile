@@ -325,6 +325,11 @@ function clear-iterm-cache() {
 alias clear-cache='clear-iterm-cache'
 alias iterm-cache='clear-iterm-cache'
 
+# Editor aliases
+alias c='cursor .'                    # Open Cursor in current directory
+alias cursor-here='cursor .'          # Alternative alias for opening Cursor
+alias cursor-new='cursor'             # Open new Cursor window
+
 # =============================================================================
 # Zsh Configuration Management
 # =============================================================================
@@ -380,18 +385,7 @@ alias install-exts='install-extensions'
 function install-extensions() {
     echo "🔌 Installing editor extensions manually..."
     
-    # VSCode extensions
-    if command -v code >/dev/null 2>&1; then
-        echo "📦 Installing VSCode extensions..."
-        if [ -f ~/Developer/dotfiles/configs/editors/vscode/extensions.txt ]; then
-            while IFS= read -r extension; do
-                if [ -n "$extension" ]; then
-                    echo "  Installing: $extension"
-                    code --install-extension "$extension" || echo "    ⚠️  Failed to install $extension"
-                fi
-            done < ~/Developer/dotfiles/configs/editors/vscode/extensions.txt
-        fi
-    fi
+    # VSCode extensions removed - using Cursor only
     
     # Cursor extensions
     if command -v cursor >/dev/null 2>&1; then

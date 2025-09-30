@@ -395,76 +395,11 @@ class DotfilesSync
       end
     end
 
-    # Install VSCode configuration
-    vscode_source = "#{editors_source}/vscode"
-    if Dir.exist?(vscode_source)
-      vscode_user_dir = "#{ENV['HOME']}/Library/Application Support/Code/User"
-      
-      unless @dry_run
-        FileUtils.mkdir_p(vscode_user_dir)
-      end
-
-      # Install settings
-      settings_file = "#{vscode_source}/settings.json"
-      if File.exist?(settings_file)
-        target = "#{vscode_user_dir}/settings.json"
-        
-        if File.exist?(target) && !@dry_run
-          puts "💾 Backing up existing VSCode settings..."
-          FileUtils.cp(target, "#{target}.backup.#{Time.now.strftime('%Y%m%d_%H%M%S')}")
-        end
-
-        puts "⚙️  Installing VSCode settings..."
-        unless @dry_run
-          FileUtils.cp(settings_file, target)
-        end
-      end
-
-      # Install extensions
-      extensions_file = "#{vscode_source}/extensions.txt"
-      if File.exist?(extensions_file)
-        puts "🔌 Installing VSCode extensions..."
-        unless @dry_run
-          extensions = File.readlines(extensions_file).map(&:strip).reject(&:empty?)
-          extensions.each do |extension|
-            puts "  📦 Installing #{extension}..."
-            install_vscode_extension(extension)
-          end
-        end
-      end
-    end
+    # VSCode configuration removed - using Cursor only
 
     puts "🔄 Please restart your editors to apply configuration changes"
   end
 
-  def install_vscode_extension(extension)
-    # Check if extension is already installed
-    stdout, stderr, status = Open3.capture3("code --list-extensions")
-    if status.success? && stdout.include?(extension)
-      puts "    ✅ #{extension} already installed"
-      return
-    end
-
-    # Try to install the extension with error handling
-    begin
-      stdout, stderr, status = Open3.capture3("code --install-extension #{extension}")
-      
-      if status.success?
-        puts "    ✅ Successfully installed #{extension}"
-      else
-        # Check if it's a VSCode internal error (like the one you encountered)
-        if stderr.include?("FATAL ERROR") || stderr.include?("Abort trap") || stderr.include?("already installed")
-          puts "    ⚠️  #{extension} installation had issues (VSCode internal error)"
-          puts "    💡 You can manually install it later with: code --install-extension #{extension}"
-        else
-          puts "    ❌ Failed to install #{extension}: #{stderr.strip}"
-        end
-      end
-    rescue StandardError => e
-      puts "    ⚠️  Error installing #{extension}: #{e.message}"
-      puts "    💡 You can manually install it later with: code --install-extension #{extension}"
-    end
-  end
 
   def install_cursor_extension(extension)
     # Check if extension is already installed

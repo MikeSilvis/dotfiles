@@ -66,8 +66,7 @@ dotfiles/
 │   │   ├── *.itermcolors  # Color schemes
 │   │   └── profiles/      # Dynamic profiles
 │   ├── editors/           # Editor configurations
-│   │   ├── cursor/        # Cursor settings & extensions
-│   │   └── vscode/        # VSCode settings & extensions
+│   │   └── cursor/        # Cursor settings & extensions
 │   └── env.template       # Environment variables template
 ├── bin/                   # Executable scripts
 │   └── dotfiles-sync      # Main sync executable
@@ -88,7 +87,7 @@ This dotfiles sync focuses on personal configurations and assumes you've already
 - **Vim Configuration** - Personal vimrc with plugins and color scheme
 - **Git Configuration** - Personal gitconfig and gitignore_global
 - **SSH Configuration** - Personal SSH client configuration
-- **Editor Settings** - Cursor and VSCode personal settings and extensions
+- **Editor Settings** - Cursor personal settings and extensions
 - **iTerm2 Configuration** - Personal color schemes and profiles
 - **Xcode Configuration** - Personal color themes and preferences
 - **Fonts** - Personal font collection
@@ -106,7 +105,6 @@ This dotfiles sync focuses on personal configurations and assumes you've already
 
 ### Editor Configuration
 - **Cursor**: Settings, keybindings, and extensions
-- **VSCode**: Settings and extensions
 - **Automatic Installation**: All extensions installed automatically
 
 ### Additional Configurations
@@ -327,13 +325,8 @@ This configuration includes several Square development tools and workflows:
 
 ### Common Issues
 
-**VSCode Extension Installation Errors:**
-Some extensions may fail to install due to VSCode internal errors (like "FATAL ERROR: v8::ToLocalChecked Empty MaybeLocal"). This is a known VSCode issue, not a problem with your dotfiles.
-
-**Solutions:**
-1. **Automatic**: The sync script now handles these errors gracefully and continues
-2. **Manual**: Use `install-extensions` or `install-exts` to retry failed extensions
-3. **Individual**: Install specific extensions with `code --install-extension <extension-id>`
+**Cursor Extension Installation:**
+All Cursor extensions are installed automatically during sync. If any extensions fail to install, you can use the `install-extensions` function in your development profile to retry.
 
 **Vim plugins not loading:**
 ```bash
@@ -410,7 +403,7 @@ For a complete development environment, you may also want to:
 
 - [Fonts Guide](docs/fonts.md) - Font installation and usage
 - [iTerm2 Configuration](docs/iterm2-configuration.md) - iTerm2 setup guide
-- [Editor Configuration](docs/editor-configuration.md) - Cursor/VSCode setup guide
+- [Editor Configuration](docs/editor-configuration.md) - Cursor setup guide
 - [Migration Guide](docs/migration-guide.md) - New PC setup instructions
 - [Zshrc Analysis](docs/zshrc-analysis.md) - Zsh configuration details
 
