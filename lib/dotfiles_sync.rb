@@ -80,6 +80,8 @@ class DotfilesSync
       go
       node
       bash-git-prompt
+      oh-my-posh
+      font-meslo-lg-nerd-font
     ]
 
     packages.each do |package|
