@@ -18,3 +18,4 @@ echo ""
 echo "💡 To load all tools at once, run: load-all"
 echo "💡 Individual load functions: load_nvm, load_rvm, load_mise, load_antigen_plugins"
 
+

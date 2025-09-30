@@ -14,8 +14,8 @@ export VISUAL="vim"
 # Minimal PATH setup
 export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
 
-# Basic prompt (no git, no fancy themes)
-PROMPT='%~ $ '
+# Basic prompt disabled - using fancy custom prompt
+# PROMPT='%~ $ '
 
 # Enable basic completion
 autoload -U compinit
@@ -86,12 +86,11 @@ export ZSH_COMPDUMP="$ZSH/cache/.zcompdump"
 export DISABLE_UPDATE_PROMPT=true
 export DISABLE_AUTO_UPDATE=true
 
-# Set name of the theme to load
-ZSH_THEME="agnoster"
+# Set name of the theme to load (disabled - using Oh My Posh)
+ZSH_THEME=""
 
 # Which plugins would you like to load?
 plugins=(
-  git
   sudo
   alias-finder
   asdf
@@ -116,9 +115,7 @@ if [ -f ~/.development_profile ]; then
     source ~/.development_profile
 fi
 
-# Fast Git Prompt (lightweight alternative to heavy Square git prompt)
-if [ -f ~/Developer/dotfiles/configs/shell/fast-git-prompt.zsh ]; then
-    source ~/Developer/dotfiles/configs/shell/fast-git-prompt.zsh
-fi
+# Oh My Posh - Custom Gruvbox Theme (hostname removed)
+PROMPT='$(oh-my-posh print primary --config ~/.oh-my-posh-theme.omp.json)'
 
 # Configuration loaded silently

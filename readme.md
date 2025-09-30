@@ -80,6 +80,7 @@ dotfiles/
 - **Homebrew** - Package manager
 - **rbenv** - Ruby version manager (replaces RVM)
 - **Oh My Zsh** - Zsh framework with themes and plugins
+- **Oh My Posh** - Cross-platform prompt theme engine with Gruvbox theme
 - **Vundle and Pathogen** - Vim plugin managers
 
 ### Development Tools
@@ -110,8 +111,9 @@ dotfiles/
 - **Ack**: Search tool configuration
 
 ### Shell Features
-- **Oh My Zsh** with Agnoster theme
-- **Antigen** for additional plugins
+- **Oh My Zsh** with plugins (theme disabled in favor of Oh My Posh)
+- **Oh My Posh** with Gruvbox theme for beautiful, functional prompts
+- **Meslo LG Nerd Font** for proper icon display
 - **NVM** for Node.js version management
 - **Mise** (asdf alternative) for tool version management
 - **Vi mode** for command line editing
@@ -137,7 +139,26 @@ export SANDBOX_APPLE_MERCHANT_ID='merchant.com.yourname.squareup.apple-pay'
 The configuration supports both bash and zsh:
 
 - **Bash**: Uses `~/.bash_profile` which sources personal configs
-- **Zsh**: Uses `~/.zshrc` with Oh My Zsh and Antigen plugins
+- **Zsh**: Uses `~/.zshrc` with Oh My Zsh plugins and Oh My Posh Gruvbox theme
+
+### Oh My Posh Configuration
+
+The terminal prompt uses the official Oh My Posh Gruvbox theme:
+
+- **Theme**: Gruvbox (warm, muted colors)
+- **Features**: Git integration, directory display, user@host info, exit status
+- **Font**: Meslo LG Nerd Font for proper icon display
+- **Configuration**: Loaded directly from the official Oh My Posh repository
+
+To change themes or customize the prompt, modify the Oh My Posh configuration in `~/.zshrc`:
+
+```bash
+# Current configuration
+eval "$(oh-my-posh init zsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/gruvbox.omp.json)"
+
+# To use a different theme, replace the URL with another theme:
+# eval "$(oh-my-posh init zsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/theme-name.omp.json)"
+```
 
 ### Vim Configuration
 
@@ -291,10 +312,16 @@ vim +PlugInstall +qall
 source ~/.zshrc  # or ~/.bash_profile
 ```
 
-**Git prompt not showing:**
+**Oh My Posh prompt not showing:**
 ```bash
-# Install bash-git-prompt
-brew install bash-git-prompt
+# Check if Oh My Posh is installed
+oh-my-posh --version
+
+# Reinstall if needed
+brew install oh-my-posh
+
+# Reload shell configuration
+source ~/.zshrc
 ```
 
 ### Getting Help
