@@ -172,21 +172,44 @@ The configuration supports both bash and zsh:
 
 ### Oh My Posh Configuration
 
-The terminal prompt uses the official Oh My Posh Gruvbox theme:
+The terminal prompt uses the Oh My Posh Gruvbox theme with **local configuration for optimal performance**:
 
-- **Theme**: [Gruvbox](https://github.com/JanDeDobbeleer/oh-my-posh/blob/main/themes/gruvbox.omp.json) (warm, muted colors)
+- **Theme**: Gruvbox (warm, muted colors) - stored locally in `~/.oh-my-posh/themes/`
 - **Features**: Git integration, directory display, user@host info, exit status
-- **Configuration**: Loaded directly from the official Oh My Posh repository
+- **Configuration**: Local file for fast startup and offline availability
 
-To change themes or customize the prompt, modify the Oh My Posh configuration in `~/.zshrc`:
+#### Setup Instructions
 
-```bash
-# Current configuration
-PROMPT='$(oh-my-posh print primary --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/gruvbox.omp.json)'
+1. **Install Oh My Posh** (if not already installed):
+   ```bash
+   brew install oh-my-posh
+   ```
 
-# To use a different theme, replace the URL with another theme:
-# PROMPT='$(oh-my-posh print primary --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/theme-name.omp.json)'
-```
+2. **Create theme directory and download theme**:
+   ```bash
+   mkdir -p ~/.oh-my-posh/themes
+   curl -o ~/.oh-my-posh/themes/gruvbox.omp.json https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/gruvbox.omp.json
+   ```
+
+3. **Current configuration in `~/.zshrc`**:
+   ```bash
+   eval "$(oh-my-posh init zsh --config ~/.oh-my-posh/themes/gruvbox.omp.json)"
+   ```
+
+#### Customization
+
+To use a different theme:
+1. Download the theme file to `~/.oh-my-posh/themes/`
+2. Update the `--config` path in your `~/.zshrc`
+3. Run `source ~/.zshrc` to apply changes
+
+**Note**: The `oh-my-posh init zsh` command is the recommended way to initialize Oh My Posh as it properly sets up the shell integration and prompt rendering.
+
+**Benefits of local configuration**:
+- ⚡ Faster shell startup (no network requests)
+- 🔒 Works offline
+- 🛠️ Fully customizable (edit theme files locally)
+- 🚀 More reliable (no dependency on GitHub availability)
 
 ### Vim Configuration
 

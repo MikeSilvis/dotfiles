@@ -15,6 +15,7 @@ class DotfilesSync
     @verbose = options[:verbose] || false
     @force = options[:force] || false
     @backup_dir = options[:backup_dir] || "#{ENV['HOME']}/.dotfiles_backup_#{Time.now.strftime('%Y%m%d_%H%M%S')}"
+    @dotfiles_dir = options[:dotfiles_dir] || Dir.pwd
   end
 
   def run
@@ -110,6 +111,32 @@ class DotfilesSync
       run_command("brew install oh-my-posh", "Installing Oh My Posh")
     else
       puts "✅ Oh My Posh already installed"
+    end
+    
+    # Setup local theme configuration
+    setup_oh_my_posh_theme
+  end
+  
+  def setup_oh_my_posh_theme
+    puts "🎨 Setting up Oh My Posh theme configuration..."
+    
+    theme_dir = File.expand_path("~/.oh-my-posh/themes")
+    theme_file = File.join(theme_dir, "gruvbox.omp.json")
+    local_theme = File.join(@dotfiles_dir, "configs/oh-my-posh/themes/gruvbox.omp.json")
+    
+    # Create theme directory if it doesn't exist
+    unless Dir.exist?(theme_dir)
+      puts "📁 Creating Oh My Posh themes directory..."
+      FileUtils.mkdir_p(theme_dir)
+    end
+    
+    # Copy theme file if it doesn't exist or is older than our local version
+    if !File.exist?(theme_file) || (File.exist?(local_theme) && File.mtime(local_theme) > File.mtime(theme_file))
+      puts "📋 Installing Gruvbox theme locally..."
+      FileUtils.cp(local_theme, theme_file) if File.exist?(local_theme)
+      puts "✅ Local theme configuration ready"
+    else
+      puts "✅ Oh My Posh theme already configured"
     end
   end
 

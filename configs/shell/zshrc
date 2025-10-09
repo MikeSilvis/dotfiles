@@ -116,8 +116,8 @@ if [ -f ~/.development_profile ]; then
     source ~/.development_profile
 fi
 
-# Oh My Posh - Gruvbox Theme
-PROMPT='$(oh-my-posh print primary --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/gruvbox.omp.json)'
+# Oh My Posh - Gruvbox Theme (Local Configuration)
+eval "$(oh-my-posh init zsh --config ~/.oh-my-posh/themes/gruvbox.omp.json)"
 
 # Configuration loaded silently
 

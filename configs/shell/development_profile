@@ -9,6 +9,30 @@ export PATH="/Users/msilvis/.local/bin:$PATH"
 set -o vi
 
 # =============================================================================
+# Android Development Configuration
+# =============================================================================
+
+# Android SDK configuration
+# The SDK is typically installed at ~/Library/Android/sdk (Android Studio)
+# or /usr/local/share/android-sdk (Homebrew)
+if [ -d "$HOME/Library/Android/sdk" ]; then
+    export ANDROID_HOME="$HOME/Library/Android/sdk"
+    export ANDROID_SDK_ROOT="$HOME/Library/Android/sdk"
+elif [ -d "/usr/local/share/android-sdk" ]; then
+    export ANDROID_HOME="/usr/local/share/android-sdk"
+    export ANDROID_SDK_ROOT="/usr/local/share/android-sdk"
+fi
+
+# Add Android SDK tools to PATH if ANDROID_HOME is set
+if [ -n "$ANDROID_HOME" ]; then
+    export PATH="$ANDROID_HOME/emulator:$PATH"
+    export PATH="$ANDROID_HOME/platform-tools:$PATH"
+    export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+    export PATH="$ANDROID_HOME/tools:$PATH"
+    export PATH="$ANDROID_HOME/tools/bin:$PATH"
+fi
+
+# =============================================================================
 # Git Aliases and Functions
 # =============================================================================
 
