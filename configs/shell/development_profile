@@ -25,11 +25,24 @@ fi
 
 # Add Android SDK tools to PATH if ANDROID_HOME is set
 if [ -n "$ANDROID_HOME" ]; then
-    export PATH="$ANDROID_HOME/emulator:$PATH"
-    export PATH="$ANDROID_HOME/platform-tools:$PATH"
-    export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
-    export PATH="$ANDROID_HOME/tools:$PATH"
-    export PATH="$ANDROID_HOME/tools/bin:$PATH"
+    # Core tools (always available)
+    [ -d "$ANDROID_HOME/emulator" ] && export PATH="$ANDROID_HOME/emulator:$PATH"
+    [ -d "$ANDROID_HOME/platform-tools" ] && export PATH="$ANDROID_HOME/platform-tools:$PATH"
+    
+    # Command-line tools (sdkmanager, avdmanager)
+    # Install via: Android Studio > Settings > SDK Manager > SDK Tools > Android SDK Command-line Tools
+    [ -d "$ANDROID_HOME/cmdline-tools/latest/bin" ] && export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+    
+    # Legacy tools directory (deprecated but may exist)
+    [ -d "$ANDROID_HOME/tools" ] && export PATH="$ANDROID_HOME/tools:$PATH"
+    [ -d "$ANDROID_HOME/tools/bin" ] && export PATH="$ANDROID_HOME/tools/bin:$PATH"
+    
+    # Build tools
+    if [ -d "$ANDROID_HOME/build-tools" ]; then
+        # Add the latest build-tools version to PATH
+        LATEST_BUILD_TOOLS=$(ls -1 "$ANDROID_HOME/build-tools" | sort -V | tail -1)
+        [ -n "$LATEST_BUILD_TOOLS" ] && export PATH="$ANDROID_HOME/build-tools/$LATEST_BUILD_TOOLS:$PATH"
+    fi
 fi
 
 # =============================================================================
@@ -112,35 +125,6 @@ function cleanup_merged_prs() {
     echo "Merged branches have been deleted."
 }
 
-function cherry_pick() {
-    # Prompt for the default branch only once per session
-    if [ -z "$DEFAULT_BRANCH" ]; then
-        read "DEFAULT_BRANCH?Enter the default branch to cherry-pick from: "
-        export DEFAULT_BRANCH
-    fi
-
-    echo "Cherry-picking files from branch '$DEFAULT_BRANCH'. Type 'stop' to end."
-
-    # Loop for selecting files to cherry-pick
-    while true; do
-        read "FILE_PATH?Enter the file to cherry-pick from $DEFAULT_BRANCH (or 'stop' to finish): "
-
-        # Exit the loop if the user types "stop"
-        if [[ "$FILE_PATH" == "stop" ]]; then
-            echo "Interactive cherry-pick stopped."
-            break
-        fi
-
-        # Check if the file exists in the specified branch
-        if git show "$DEFAULT_BRANCH":"$FILE_PATH" > /dev/null 2>&1; then
-            echo "Cherry-picking $FILE_PATH from $DEFAULT_BRANCH..."
-            git checkout "$DEFAULT_BRANCH" -- "$FILE_PATH"
-        else
-            echo "Error: $FILE_PATH does not exist in $DEFAULT_BRANCH."
-        fi
-    done
-}
-
 # =============================================================================
 # Development Aliases and Functions
 # =============================================================================
@@ -160,15 +144,6 @@ function bazeltest() {
 
 function bazelRun() {
   bundle exec rlib query $@ | bundle exec rlib build
-}
-
-# Xcode functions
-function enableIndex() {
-  defaults write com.apple.dt.XCode IDEIndexDisable 0
-}
-
-function disableIndex() {
-  defaults write com.apple.dt.XCode IDEIndexDisable 1
 }
 
 # Development workflow functions
@@ -216,19 +191,78 @@ alias downloadSnapshotImages="be ./Scripts/download-view-test-images.rb $@ --use
 # Dotfiles Management
 # =============================================================================
 
+# Lazy-loading functions for development tools
+
+# load_oh_my_zsh_plugins() - Load Oh My Zsh plugins
+function load_oh_my_zsh_plugins() {
+    if [[ -z "$OMZ_PLUGINS_LOADED" ]]; then
+        echo "🔌 Loading Oh My Zsh plugins..."
+        # Plugins are already loaded by default in zshrc
+        export OMZ_PLUGINS_LOADED=1
+        echo "✅ Oh My Zsh plugins loaded"
+    else
+        echo "ℹ️  Oh My Zsh plugins already loaded"
+    fi
+}
+
+# load_antigen_plugins() - Load Antigen plugins
+function load_antigen_plugins() {
+    echo "ℹ️  Antigen has been removed - using Oh My Zsh only"
+}
+
+# load_nvm() - Load Node Version Manager
+function load_nvm() {
+    if [[ -z "$NVM_DIR" ]] && [ -d "$HOME/.nvm" ]; then
+        echo "🔄 Loading NVM..."
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+        echo "✅ NVM loaded"
+    elif [[ -n "$NVM_DIR" ]]; then
+        echo "ℹ️  NVM already loaded"
+    else
+        echo "⚠️  NVM not found at ~/.nvm"
+    fi
+}
+
+# load_rvm() - Load Ruby Version Manager
+function load_rvm() {
+    if command -v rvm >/dev/null 2>&1; then
+        echo "✅ RVM already loaded by Square configs"
+        export RVM_LOADED=1
+    else
+        echo "⚠️  RVM not found"
+    fi
+}
+
+# load_mise() - Load mise version manager
+function load_mise() {
+    if [[ -z "$MISE_LOADED" ]] && command -v mise >/dev/null 2>&1; then
+        echo "🔄 Loading mise..."
+        eval "$(mise activate zsh)"
+        export MISE_LOADED=1
+        echo "✅ mise loaded"
+    elif [[ -n "$MISE_LOADED" ]]; then
+        echo "ℹ️  mise already loaded"
+    else
+        echo "⚠️  mise not found - install with: brew install mise"
+    fi
+}
+
 # load-all() - Load all lazy-loaded components for full functionality
 # Usage: load-all
 # Note: RVM is already loaded by Square configs, so this just marks it as loaded
+# Note: mise is already loaded automatically in zshrc for performance
 function load-all() {
     echo "🚀 Loading all development tools..."
     load_oh_my_zsh_plugins
     load_antigen_plugins
     load_nvm
     load_rvm  # Already loaded by Square, just marks as loaded
-    load_mise
+    load_mise  # Already loaded automatically, just marks as loaded
     load_git_prompt
     echo "✅ All tools loaded!"
-    echo "💡 Note: RVM was already loaded by Square configs"
+    echo "💡 Note: RVM and mise are already loaded by default"
 }
 
 # sync() - Run dotfiles sync from anywhere

@@ -129,3 +129,14 @@ eval "$(oh-my-posh init zsh --config ~/.oh-my-posh/themes/gruvbox.omp.json)"
 if command -v rbenv 1>/dev/null 2>&1; then
   eval "$(rbenv init - zsh)"
 fi
+
+# =============================================================================
+# Version Management (mise)
+# =============================================================================
+
+# Initialize mise for automatic version switching
+# Supports Node, Ruby, Python, and many other languages
+# Automatically switches versions when you cd into directories with .tool-versions
+if command -v mise 1>/dev/null 2>&1; then
+  eval "$(mise activate zsh)"
+fi
