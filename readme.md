@@ -397,7 +397,7 @@ ruby scripts/install.rb
 ## 📝 Customization
 
 ### Adding New Aliases
-Add them to `configs/shell/ms_bash_profile`:
+Add them to `configs/shell/development_profile`:
 
 ```bash
 # Your custom aliases
