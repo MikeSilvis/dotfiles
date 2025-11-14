@@ -165,8 +165,6 @@ function monday() {
 
   cd ~/Development/mcp-square && git pull
 
-  cd ~/Development/ios-register && sq warmup-xcode
-
   # Sync dotfiles at the end (includes Oh My Zsh update)
   echo "🔄 Syncing dotfiles..."
   sync
@@ -184,7 +182,6 @@ function superpos() {
 }
 
 # Utility aliases
-alias bz="pkill Xcode; sq gen $@ --auto-open"
 alias downloadSnapshotImages="be ./Scripts/download-view-test-images.rb $@ --use-netrc"
 
 # =============================================================================

@@ -64,8 +64,8 @@ dotfiles/
 │   ├── inputrc            # Readline configuration
 │   ├── ackrc              # Ack search tool configuration
 │   ├── fonts/             # Custom fonts
-│   ├── themes/            # Xcode and iTerm2 themes
-│   │   └── xcode/         # Xcode color themes
+│   ├── xcode/             # Xcode configuration
+│   │   └── FontAndColorThemes/  # Xcode color themes
 │   ├── iterm2/            # iTerm2 configuration
 │   │   ├── *.itermcolors  # Color schemes
 │   │   └── profiles/      # Dynamic profiles

@@ -292,12 +292,10 @@ class DotfilesSync
     return unless Dir.exist?(xcode_source)
 
     xcode_user_dir = "#{ENV['HOME']}/Library/Developer/Xcode/UserData"
-    xcode_prefs_dir = "#{ENV['HOME']}/Library/Preferences"
 
     unless @dry_run
       FileUtils.mkdir_p(xcode_user_dir)
       FileUtils.mkdir_p("#{xcode_user_dir}/FontAndColorThemes")
-      FileUtils.mkdir_p("#{xcode_user_dir}/KeyBindings")
     end
 
     # Install color themes
@@ -319,65 +317,7 @@ class DotfilesSync
       end
     end
 
-    # Install key bindings
-    keybindings_source = "#{xcode_source}/KeyBindings"
-    if Dir.exist?(keybindings_source)
-      Dir.glob("#{keybindings_source}/*.idekeybindings").each do |keybinding_file|
-        keybinding_name = File.basename(keybinding_file)
-        target = "#{xcode_user_dir}/KeyBindings/#{keybinding_name}"
-        
-        if File.exist?(target) && !@dry_run
-          puts "💾 Backing up existing Xcode keybindings..."
-          FileUtils.cp(target, "#{target}.backup.#{Time.now.strftime('%Y%m%d_%H%M%S')}")
-        end
-
-        puts "⌨️  Installing Xcode keybindings: #{keybinding_name}"
-        unless @dry_run
-          FileUtils.cp(keybinding_file, target)
-        end
-      end
-    end
-
-    # Install find navigator scopes
-    scopes_file = "#{xcode_source}/IDEFindNavigatorScopes.plist"
-    if File.exist?(scopes_file)
-      target = "#{xcode_user_dir}/IDEFindNavigatorScopes.plist"
-      
-      if File.exist?(target) && !@dry_run
-        puts "💾 Backing up existing Xcode find navigator scopes..."
-        FileUtils.cp(target, "#{target}.backup.#{Time.now.strftime('%Y%m%d_%H%M%S')}")
-      end
-
-      puts "🔍 Installing Xcode find navigator scopes..."
-      unless @dry_run
-        FileUtils.cp(scopes_file, target)
-      end
-    end
-
-    # Install Xcode preferences
-    prefs_files = [
-      "#{xcode_source}/com.apple.dt.Xcode.plist",
-      "#{xcode_source}/com.apple.dt.xcodebuild.plist"
-    ]
-
-    prefs_files.each do |prefs_file|
-      next unless File.exist?(prefs_file)
-      
-      prefs_name = File.basename(prefs_file)
-      target = "#{xcode_prefs_dir}/#{prefs_name}"
-      
-      if File.exist?(target) && !@dry_run
-        puts "💾 Backing up existing Xcode preferences: #{prefs_name}..."
-        FileUtils.cp(target, "#{target}.backup.#{Time.now.strftime('%Y%m%d_%H%M%S')}")
-      end
-
-      puts "⚙️  Installing Xcode preferences: #{prefs_name}"
-      unless @dry_run
-        FileUtils.cp(prefs_file, target)
-      end
-    end
-
-    puts "🔄 Please restart Xcode to apply configuration changes"
+    puts "✅ Xcode themes installed. Select theme in Xcode > Settings > Themes"
   end
 
   def install_iterm2_config
