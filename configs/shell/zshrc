@@ -140,3 +140,28 @@ fi
 if command -v mise 1>/dev/null 2>&1; then
   eval "$(mise activate zsh)"
 fi
+
+# =============================================================================
+# Custom Git Functions
+# =============================================================================
+
+# Override git to detect main vs master on checkout
+function git() {
+  if [[ "$1" == "checkout" && ("$2" == "main" || "$2" == "master") ]]; then
+    local default_branch=$(command git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+    
+    if [[ -z "$default_branch" ]]; then
+      if command git show-ref --verify --quiet refs/heads/main; then
+        default_branch="main"
+      elif command git show-ref --verify --quiet refs/heads/master; then
+        default_branch="master"
+      else
+        default_branch="main"
+      fi
+    fi
+    
+    command git checkout "$default_branch"
+  else
+    command git "$@"
+  fi
+}
