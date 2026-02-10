@@ -195,7 +195,7 @@ class DotfilesSync
       dotfiles_to_copy = dotfiles_to_copy.merge(personal_only)
     end
 
-    # development_profile is no longer copied — it's sourced directly from the repo
+    # aliases.zsh is not copied — it's sourced directly from the repo by zshrc
 
     dotfiles_to_copy.each do |source, target|
       next unless File.exist?(source)
@@ -441,8 +441,6 @@ class DotfilesSync
         end
       end
     end
-
-    # VSCode configuration removed - using Cursor only
 
     puts "🔄 Please restart your editors to apply configuration changes"
   end

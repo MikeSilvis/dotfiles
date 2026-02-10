@@ -30,8 +30,8 @@ source "$ZSH/oh-my-zsh.sh"
 command -v oh-my-posh &>/dev/null && \
   eval "$(oh-my-posh init zsh --config ~/.oh-my-posh/themes/gruvbox.omp.json)"
 
-# --- Development profile (sourced from repo) ---
-source "$DOTFILES_DIR/configs/shell/development_profile"
+# --- Aliases and functions (sourced from repo) ---
+source "$DOTFILES_DIR/configs/shell/aliases.zsh"
 
 # --- Custom git function (main/master detection) ---
 function git() {

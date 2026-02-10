@@ -1,9 +1,9 @@
 # =============================================================================
-# Development Profile - Aliases, Functions, and Development Tools
+# Aliases, Functions, and Development Tools
 # =============================================================================
 
 # Add local bin to PATH
-export PATH="/Users/msilvis/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 
 # =============================================================================
 # Android Development Configuration
@@ -53,16 +53,6 @@ alias gl='git log'
 alias gc='git checkout'
 alias gr='git remote -v'
 
-# Git prompt configuration (lazy loaded)
-function load_git_prompt() {
-  if [[ -z "$GIT_PROMPT_LOADED" ]] && [ -f "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh" ]; then
-    echo "🔄 Loading Git prompt..."
-    __GIT_PROMPT_DIR=$(brew --prefix)/opt/bash-git-prompt/share
-    source "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh"
-    export GIT_PROMPT_LOADED=1
-  fi
-}
-
 # Git utility functions
 function resetHard() {
   git reset --hard
@@ -83,51 +73,10 @@ function gcma() {
   git commit --amend --no-edit
 }
 
-function cleanup_merged_prs() {
-    # Define the main branch name
-    local MAIN_BRANCH="main"
-
-    # Fetch the latest changes from the remote repository
-    git fetch origin
-
-    # Switch to the main branch
-    git checkout $MAIN_BRANCH
-
-    # Pull the latest changes on the main branch
-    git pull origin $MAIN_BRANCH
-
-    # Get a list of merged branches (excluding the main branch)
-    local MERGED_BRANCHES=($(git branch --merged $MAIN_BRANCH | grep -vE "^(\*|$MAIN_BRANCH)"))
-
-    # Check if there are any merged branches to delete
-    if [ ${#MERGED_BRANCHES[@]} -eq 0 ]; then
-        echo "No merged branches found."
-        return 0
-    fi
-
-   for BRANCH in "${MERGED_BRANCHES[@]}"; do
-    # Trim leading and trailing whitespace
-    BRANCH=$(echo "$BRANCH" | xargs)
-
-    # Escape branch name for deletion
-    ESCAPED_BRANCH=$(printf '%q' "$BRANCH")
-
-    # Delete the local branch
-    git branch -d "$ESCAPED_BRANCH"
-
-    # Delete the remote branch (uncomment if needed)
-    # git push origin --delete "$ESCAPED_BRANCH"
-   done
-
-    echo "Merged branches have been deleted."
-}
-
 # =============================================================================
 # Development Aliases and Functions
 # =============================================================================
 
-# Formatting and build tools
-alias format='./Pods/SpaceCommander/format-objc-files.sh -s'
 alias bepi='bundle exec pod install'
 
 # Bazel functions
@@ -179,100 +128,25 @@ function superpos() {
 }
 
 # Utility aliases
-alias downloadSnapshotImages="be ./Scripts/download-view-test-images.rb $@ --use-netrc"
+alias downloadSnapshotImages="bundle exec ./Scripts/download-view-test-images.rb $@ --use-netrc"
 
 # =============================================================================
 # Dotfiles Management
 # =============================================================================
 
-# Lazy-loading functions for development tools
-
-# load_oh_my_zsh_plugins() - Load Oh My Zsh plugins
-function load_oh_my_zsh_plugins() {
-    if [[ -z "$OMZ_PLUGINS_LOADED" ]]; then
-        echo "🔌 Loading Oh My Zsh plugins..."
-        # Plugins are already loaded by default in zshrc
-        export OMZ_PLUGINS_LOADED=1
-        echo "✅ Oh My Zsh plugins loaded"
-    else
-        echo "ℹ️  Oh My Zsh plugins already loaded"
-    fi
-}
-
-# load_antigen_plugins() - Load Antigen plugins
-function load_antigen_plugins() {
-    echo "ℹ️  Antigen has been removed - using Oh My Zsh only"
-}
-
-# load_nvm() - Load Node Version Manager
-function load_nvm() {
-    if [[ -z "$NVM_DIR" ]] && [ -d "$HOME/.nvm" ]; then
-        echo "🔄 Loading NVM..."
-        export NVM_DIR="$HOME/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-        echo "✅ NVM loaded"
-    elif [[ -n "$NVM_DIR" ]]; then
-        echo "ℹ️  NVM already loaded"
-    else
-        echo "⚠️  NVM not found at ~/.nvm"
-    fi
-}
-
-# load-all() - Load all lazy-loaded components for full functionality
-# Usage: load-all
-# Note: Ruby version manager (RVM or mise) is loaded by the zshrc variant
-function load-all() {
-    echo "🚀 Loading all development tools..."
-    load_oh_my_zsh_plugins
-    load_antigen_plugins
-    load_nvm
-    load_git_prompt
-    echo "✅ All tools loaded!"
-}
-
 # sync() - Run dotfiles sync from anywhere
-# Usage: sync [options]
-# Examples:
-#   sync                    # Basic sync
-#   sync --dry-run          # See what would be done
-#   sync --verbose          # Detailed output
-#   sync-dry                # Alias for sync --dry-run
+# Usage: sync [--dry-run] [--verbose] [--force]
 function sync() {
-    # Dynamically find the dotfiles directory
-    local DOTFILES_DIR
-    
-    # First, try to find it relative to current directory
-    if [ -f "./bin/dotfiles-sync" ]; then
-        DOTFILES_DIR="$(pwd)"
-    # Then try common locations
-    elif [ -d "${HOME}/Developer/dotfiles" ]; then
-        DOTFILES_DIR="${HOME}/Developer/dotfiles"
-    elif [ -d "${HOME}/Development/dotfiles" ]; then
-        DOTFILES_DIR="${HOME}/Development/dotfiles"
-    elif [ -d "${HOME}/dotfiles" ]; then
-        DOTFILES_DIR="${HOME}/dotfiles"
-    else
-        echo "❌ Dotfiles directory not found!"
-        echo "💡 Please run this command from your dotfiles directory, or clone it first:"
-        echo "   git clone https://github.com/msilvis/dotfiles.git ~/Development/dotfiles"
+    if [[ -z "$DOTFILES_DIR" ]]; then
+        echo "❌ DOTFILES_DIR not set — is your zshrc configured?"
         return 1
     fi
-    
-    echo "🔍 Using dotfiles directory: $DOTFILES_DIR"
-    
-    # Change to dotfiles directory
+
     cd "$DOTFILES_DIR" || return 1
-    
-    # Run the sync script with any passed arguments
-    echo "🚀 Running dotfiles sync from: $(pwd)"
+    echo "🚀 Running dotfiles sync..."
     ./bin/dotfiles-sync "$@"
-    
-    # Update Oh My Zsh after syncing dotfiles
     echo "🔄 Updating Oh My Zsh..."
     omz update
-    
-    # Return to original directory
     cd - > /dev/null
 }
 
@@ -280,10 +154,6 @@ function sync() {
 alias sync-dry='sync --dry-run'
 alias sync-verbose='sync --verbose'
 alias sync-force='sync --force'
-
-# Aliases for lazy loading
-alias load-tools='load-all'
-alias load-dev='load-all'
 
 # =============================================================================
 # Cache Management Functions
@@ -331,38 +201,26 @@ alias cursor-new='cursor'             # Open new Cursor window
 # Aliases for extension management
 alias install-exts='install-extensions'
 
-# install-extensions() - Manually install editor extensions that failed during sync
+# install-extensions() - Manually install Cursor extensions that failed during sync
 function install-extensions() {
-    echo "🔌 Installing editor extensions manually..."
-    
-    # VSCode extensions removed - using Cursor only
-    
-    # Cursor extensions
-    if command -v cursor >/dev/null 2>&1; then
-        echo "📦 Installing Cursor extensions..."
-        # Dynamically find the dotfiles directory
-        local dotfiles_dir
-        
-        if [ -f "./bin/dotfiles-sync" ]; then
-            dotfiles_dir="$(pwd)"
-        elif [ -d "${HOME}/Developer/dotfiles" ]; then
-            dotfiles_dir="${HOME}/Developer/dotfiles"
-        elif [ -d "${HOME}/Development/dotfiles" ]; then
-            dotfiles_dir="${HOME}/Development/dotfiles"
-        elif [ -d "${HOME}/dotfiles" ]; then
-            dotfiles_dir="${HOME}/dotfiles"
-        fi
-        
-        if [ -f "$dotfiles_dir/configs/editors/cursor/extensions.txt" ]; then
-            while IFS= read -r extension; do
-                if [ -n "$extension" ]; then
-                    echo "  Installing: $extension"
-                    cursor --install-extension "$extension" || echo "    ⚠️  Failed to install $extension"
-                fi
-            done < "$dotfiles_dir/configs/editors/cursor/extensions.txt"
-        fi
+    if ! command -v cursor >/dev/null 2>&1; then
+        echo "❌ Cursor not found"
+        return 1
     fi
-    
+
+    local extensions_file="$DOTFILES_DIR/configs/editors/cursor/extensions.txt"
+    if [[ ! -f "$extensions_file" ]]; then
+        echo "❌ Extensions file not found: $extensions_file"
+        return 1
+    fi
+
+    echo "📦 Installing Cursor extensions..."
+    while IFS= read -r extension; do
+        if [[ -n "$extension" ]]; then
+            echo "  Installing: $extension"
+            cursor --install-extension "$extension" || echo "    ⚠️  Failed to install $extension"
+        fi
+    done < "$extensions_file"
     echo "✅ Extension installation complete!"
 }
 
@@ -408,42 +266,17 @@ alias sync-help='sync --help'
 
 # dotfiles-status() - Check the status of your dotfiles repository
 function dotfiles-status() {
-    # Dynamically find the dotfiles directory
-    local DOTFILES_DIR
-    
-    if [ -f "./bin/dotfiles-sync" ]; then
-        DOTFILES_DIR="$(pwd)"
-    elif [ -d "${HOME}/Developer/dotfiles" ]; then
-        DOTFILES_DIR="${HOME}/Developer/dotfiles"
-    elif [ -d "${HOME}/Development/dotfiles" ]; then
-        DOTFILES_DIR="${HOME}/Development/dotfiles"
-    elif [ -d "${HOME}/dotfiles" ]; then
-        DOTFILES_DIR="${HOME}/dotfiles"
-    else
-        echo "❌ Dotfiles directory not found!"
+    if [[ -z "$DOTFILES_DIR" ]]; then
+        echo "❌ DOTFILES_DIR not set"
         return 1
     fi
-    
-    if [ ! -d "$DOTFILES_DIR" ]; then
-        echo "❌ Dotfiles directory not found at: $DOTFILES_DIR"
-        return 1
-    fi
-    
+
     cd "$DOTFILES_DIR" || return 1
-    
     echo "📁 Dotfiles Repository Status:"
-    echo "📍 Location: $(pwd)"
-    echo "🌿 Branch: $(git branch --show-current 2>/dev/null || echo 'Not a git repository')"
+    echo "📍 Location: $DOTFILES_DIR"
+    echo "🌿 Branch: $(git branch --show-current 2>/dev/null)"
     echo "📊 Status: $(git status --porcelain 2>/dev/null | wc -l | xargs) uncommitted changes"
-    echo "🔄 Last sync: $(git log -1 --format='%ar' 2>/dev/null || echo 'Unknown')"
-    
-    # Check if sync script exists and is executable
-    if [ -x "./bin/dotfiles-sync" ]; then
-        echo "✅ Sync script is ready"
-    else
-        echo "❌ Sync script not found or not executable"
-    fi
-    
+    echo "🔄 Last sync: $(git log -1 --format='%ar' 2>/dev/null)"
     cd - > /dev/null
 }
 
