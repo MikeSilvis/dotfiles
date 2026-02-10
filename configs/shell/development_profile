@@ -5,9 +5,6 @@
 # Add local bin to PATH
 export PATH="/Users/msilvis/.local/bin:$PATH"
 
-# Set vi mode for command line editing
-set -o vi
-
 # =============================================================================
 # Android Development Configuration
 # =============================================================================
@@ -222,44 +219,16 @@ function load_nvm() {
     fi
 }
 
-# load_rvm() - Load Ruby Version Manager
-function load_rvm() {
-    if command -v rvm >/dev/null 2>&1; then
-        echo "✅ RVM already loaded by Square configs"
-        export RVM_LOADED=1
-    else
-        echo "⚠️  RVM not found"
-    fi
-}
-
-# load_mise() - Load mise version manager
-function load_mise() {
-    if [[ -z "$MISE_LOADED" ]] && command -v mise >/dev/null 2>&1; then
-        echo "🔄 Loading mise..."
-        eval "$(mise activate zsh)"
-        export MISE_LOADED=1
-        echo "✅ mise loaded"
-    elif [[ -n "$MISE_LOADED" ]]; then
-        echo "ℹ️  mise already loaded"
-    else
-        echo "⚠️  mise not found - install with: brew install mise"
-    fi
-}
-
 # load-all() - Load all lazy-loaded components for full functionality
 # Usage: load-all
-# Note: RVM is already loaded by Square configs, so this just marks it as loaded
-# Note: mise is already loaded automatically in zshrc for performance
+# Note: Ruby version manager (RVM or mise) is loaded by the zshrc variant
 function load-all() {
     echo "🚀 Loading all development tools..."
     load_oh_my_zsh_plugins
     load_antigen_plugins
     load_nvm
-    load_rvm  # Already loaded by Square, just marks as loaded
-    load_mise  # Already loaded automatically, just marks as loaded
     load_git_prompt
     echo "✅ All tools loaded!"
-    echo "💡 Note: RVM and mise are already loaded by default"
 }
 
 # sync() - Run dotfiles sync from anywhere
@@ -317,43 +286,6 @@ alias load-tools='load-all'
 alias load-dev='load-all'
 
 # =============================================================================
-# Prompt Management Functions
-# =============================================================================
-
-# switch-prompt() - Switch between fast and full git prompts
-function switch-prompt() {
-    local mode="${1:-fast}"
-    
-    case "$mode" in
-        "fast")
-            echo "🚀 Switching to fast git prompt..."
-            # Comment out Square zshrc in ~/.zshrc
-            sed -i.bak 's/^if \[ -f ~\/Development\/config_files\/square\/zshrc \]; then/# if [ -f ~\/Development\/config_files\/square\/zshrc ]; then/' ~/.zshrc
-            sed -i.bak 's/^    source ~\/Development\/config_files\/square\/zshrc/#     source ~\/Development\/config_files\/square\/zshrc/' ~/.zshrc
-            sed -i.bak 's/^fi/# fi/' ~/.zshrc
-            echo "✅ Fast prompt enabled. Restart your shell or run: source ~/.zshrc"
-            ;;
-        "full")
-            echo "🐌 Switching to full Square git prompt..."
-            # Uncomment Square zshrc in ~/.zshrc
-            sed -i.bak 's/^# if \[ -f ~\/Development\/config_files\/square\/zshrc \]; then/if [ -f ~\/Development\/config_files\/square\/zshrc ]; then/' ~/.zshrc
-            sed -i.bak 's/^#     source ~\/Development\/config_files\/square\/zshrc/    source ~\/Development\/config_files\/square\/zshrc/' ~/.zshrc
-            sed -i.bak 's/^# fi/fi/' ~/.zshrc
-            echo "✅ Full prompt enabled. Restart your shell or run: source ~/.zshrc"
-            ;;
-        *)
-            echo "Usage: switch-prompt [fast|full]"
-            echo "  fast: Use lightweight git prompt (recommended for performance)"
-            echo "  full: Use full Square git prompt (more features, slower)"
-            ;;
-    esac
-}
-
-# Aliases for prompt switching
-alias prompt-fast='switch-prompt fast'
-alias prompt-full='switch-prompt full'
-
-# =============================================================================
 # Cache Management Functions
 # =============================================================================
 
@@ -396,68 +328,6 @@ alias c='cursor .'                    # Open Cursor in current directory
 alias cursor-here='cursor .'          # Alternative alias for opening Cursor
 alias cursor-new='cursor'             # Open new Cursor window
 
-# =============================================================================
-# Zsh Configuration Management
-# =============================================================================
-
-# switch-zsh-config() - Switch between minimal and full zsh configurations
-function switch-zsh-config() {
-    local mode="${1:-minimal}"
-    # Dynamically find the dotfiles directory
-    local dotfiles_dir
-    
-    if [ -f "./bin/dotfiles-sync" ]; then
-        dotfiles_dir="$(pwd)"
-    elif [ -d "${HOME}/Developer/dotfiles" ]; then
-        dotfiles_dir="${HOME}/Developer/dotfiles"
-    elif [ -d "${HOME}/Development/dotfiles" ]; then
-        dotfiles_dir="${HOME}/Development/dotfiles"
-    elif [ -d "${HOME}/dotfiles" ]; then
-        dotfiles_dir="${HOME}/dotfiles"
-    else
-        echo "❌ Dotfiles directory not found!"
-        return 1
-    fi
-    
-    case "$mode" in
-        "minimal")
-            echo "🚀 Creating minimal zsh configuration..."
-            # Create a minimal config on the fly
-            cp ~/.zshrc ~/.zshrc.backup-$(date +%Y%m%d-%H%M%S)
-            cat > ~/.zshrc << 'EOF'
-# Minimal zsh configuration
-set -o vi
-export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
-PROMPT='%~ $ '
-autoload -U compinit
-compinit
-EOF
-            echo "✅ Minimal zshrc created"
-            echo "💡 Restart your shell or run: source ~/.zshrc"
-            ;;
-        "full")
-            echo "🐌 Switching to full zsh configuration..."
-            if [ -f "$dotfiles_dir/configs/shell/zshrc" ]; then
-                cp ~/.zshrc ~/.zshrc.backup-$(date +%Y%m%d-%H%M%S)
-                cp "$dotfiles_dir/configs/shell/zshrc" ~/.zshrc
-                echo "✅ Full zshrc activated"
-                echo "💡 Restart your shell or run: source ~/.zshrc"
-            else
-                echo "❌ Full zshrc not found at: $dotfiles_dir/configs/shell/zshrc"
-            fi
-            ;;
-        *)
-            echo "Usage: switch-zsh-config [minimal|full]"
-            echo "  minimal: Use lightweight zsh config (maximum performance)"
-            echo "  full: Use full zsh config with all features"
-            ;;
-    esac
-}
-
-# Aliases for zsh config switching
-alias zsh-minimal='switch-zsh-config minimal'
-alias zsh-full='switch-zsh-config full'
-
 # Aliases for extension management
 alias install-exts='install-extensions'
 
@@ -496,32 +366,43 @@ function install-extensions() {
     echo "✅ Extension installation complete!"
 }
 
-# check-compatibility() - Check compatibility between dotfiles and Square configs
+# check-compatibility() - Check dotfiles mode and environment
 function check-compatibility() {
-    echo "🔍 Checking compatibility between dotfiles and Square configs..."
-    
-    # Check if Square configs are loaded
+    echo "🔍 Checking dotfiles environment..."
+
+    # Detect mode
+    if [[ -d ~/Development/config_files ]]; then
+        echo "🖥️  Mode: WORK (config_files detected)"
+    else
+        echo "💻 Mode: PERSONAL"
+    fi
+
+    # Check zshrc stub
+    if [[ -f ~/.zshrc ]]; then
+        local zshrc_source=$(grep '^source ' ~/.zshrc | tail -1)
+        echo "📄 ~/.zshrc sources: ${zshrc_source#source }"
+    fi
+
+    # Check Ruby version manager
+    if command -v rvm >/dev/null 2>&1; then
+        echo "💎 Ruby manager: RVM ($(rvm current 2>/dev/null || echo 'unknown'))"
+    elif command -v mise >/dev/null 2>&1; then
+        echo "💎 Ruby manager: mise"
+    else
+        echo "⚠️  No Ruby version manager found"
+    fi
+
+    # Check if Square configs are loaded (work mode)
     if [[ -n "$SQUARE_HOME" ]]; then
         echo "✅ SQUARE_HOME is set: $SQUARE_HOME"
-    else
-        echo "⚠️  SQUARE_HOME not set (Square configs may not be loaded)"
     fi
-    
-    # Check RVM status
-    if command -v rvm >/dev/null 2>&1; then
-        echo "✅ RVM is available (loaded by Square configs)"
+
+    # Check Oh My Posh
+    if command -v oh-my-posh >/dev/null 2>&1; then
+        echo "✅ Oh My Posh available"
     else
-        echo "⚠️  RVM not found"
+        echo "⚠️  Oh My Posh not found"
     fi
-    
-    # Check if Square zshrc is sourced
-    if [[ -f ~/Development/config_files/square/zshrc ]]; then
-        echo "✅ Square zshrc exists"
-    else
-        echo "⚠️  Square zshrc not found"
-    fi
-    
-    echo "💡 Your dotfiles are designed to work with Square's compost setup"
 }
 alias sync-help='sync --help'
 

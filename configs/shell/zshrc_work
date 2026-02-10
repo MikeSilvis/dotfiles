@@ -1,0 +1,51 @@
+# Mike's zshrc — Work machine
+# Source: ~/Development/dotfiles/configs/shell/zshrc_work
+
+DOTFILES_DIR="${0:A:h:h:h}"  # Resolve to dotfiles repo root
+
+# --- Square foundation (RVM, PATH, compinit, profile.d/*) ---
+source ~/Development/config_files/square/zshrc
+source ~/Development/config_files/square/aliases
+
+# --- Personal ---
+[[ -f "$HOME/.aliases" ]] && source "$HOME/.aliases"
+[[ -f "$HOME/.localaliases" ]] && source "$HOME/.localaliases"
+[[ -f "$HOME/.env" ]] && source "$HOME/.env"
+export EDITOR="vim"
+export VISUAL="vim"
+set -o vi
+
+# --- Oh My Zsh (theme disabled, using Oh My Posh) ---
+export ZSH="$HOME/.oh-my-zsh"
+export ZSH_CUSTOM="$ZSH/custom"
+export ZSH_CACHE_DIR="$ZSH/cache"
+export ZSH_COMPDUMP="$ZSH/cache/.zcompdump"
+export DISABLE_UPDATE_PROMPT=true
+export DISABLE_AUTO_UPDATE=true
+ZSH_THEME=""
+plugins=(git sudo alias-finder jsontools)
+source "$ZSH/oh-my-zsh.sh"
+
+# --- Oh My Posh ---
+command -v oh-my-posh &>/dev/null && \
+  eval "$(oh-my-posh init zsh --config ~/.oh-my-posh/themes/gruvbox.omp.json)"
+
+# --- Development profile (sourced from repo) ---
+source "$DOTFILES_DIR/configs/shell/development_profile"
+
+# --- Custom git function (main/master detection) ---
+function git() {
+  if [[ "$1" == "checkout" && ("$2" == "main" || "$2" == "master") && $# -eq 2 ]]; then
+    local default_branch=$(command git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+    if [[ -z "$default_branch" ]]; then
+      if command git show-ref --verify --quiet refs/heads/main; then default_branch="main"
+      elif command git show-ref --verify --quiet refs/heads/master; then default_branch="master"
+      else default_branch="main"; fi
+    fi
+    command git checkout "$default_branch"
+  else
+    command git "$@"
+  fi
+}
+
+# Ruby managed by RVM (loaded by config_files). No rbenv/mise.

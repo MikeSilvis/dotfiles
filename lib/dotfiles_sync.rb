@@ -22,6 +22,7 @@ class DotfilesSync
     puts "🚀 Welcome to Mike's Personal Dotfiles Sync!"
     puts "📁 Backup directory: #{@backup_dir}" unless @dry_run
     puts "🔍 Dry run mode: #{@dry_run}" if @dry_run
+    puts "🖥️  Mode: #{work_mode? ? 'WORK (config_files detected)' : 'PERSONAL'}"
     puts "💡 This sync will install system dependencies and personal settings."
     puts
 
@@ -43,11 +44,20 @@ class DotfilesSync
 
   private
 
+  def work_mode?
+    @work_mode ||= Dir.exist?(File.expand_path("~/Development/config_files"))
+  end
+
   def install_system_dependencies
     puts "🔧 Checking and installing system dependencies..."
-    
-    check_and_install_homebrew
-    check_and_install_zsh
+
+    if work_mode?
+      puts "⏭️  Skipping Homebrew/Zsh install (topsoil handles these on work machines)"
+    else
+      check_and_install_homebrew
+      check_and_install_zsh
+    end
+
     check_and_install_oh_my_zsh
     check_and_install_oh_my_posh
     check_and_install_nerd_fonts
@@ -164,18 +174,30 @@ class DotfilesSync
   def copy_personal_dotfiles
     puts "📋 Copying personal dotfiles..."
 
-    # Only copy personal configuration files that don't conflict with Square's setup
-    personal_dotfiles = {
-      './configs/shell/development_profile' => "#{ENV['HOME']}/.development_profile",
+    # Files that are always copied regardless of mode
+    always_copy = {
       './configs/vim/vimrc' => "#{ENV['HOME']}/.vimrc",
-      './configs/git/.gitconfig' => "#{ENV['HOME']}/.gitconfig",
       './configs/git/.gitignore_global' => "#{ENV['HOME']}/.gitignore_global",
-      './configs/ssh/config' => "#{ENV['HOME']}/.ssh/config",
-      './configs/.inputrc' => "#{ENV['HOME']}/.inputrc",
-      './configs/.ackrc' => "#{ENV['HOME']}/.ackrc"
+      './configs/ssh/config' => "#{ENV['HOME']}/.ssh/config"
     }
 
-    personal_dotfiles.each do |source, target|
+    # Files only copied on personal machines (config_files owns these on work machines)
+    personal_only = {
+      './configs/.ackrc' => "#{ENV['HOME']}/.ackrc",
+      './configs/.inputrc' => "#{ENV['HOME']}/.inputrc",
+      './configs/git/.gitconfig_personal' => "#{ENV['HOME']}/.gitconfig"
+    }
+
+    dotfiles_to_copy = always_copy
+    if work_mode?
+      puts "⏭️  Skipping .ackrc, .inputrc, .gitconfig (config_files owns these on work machines)"
+    else
+      dotfiles_to_copy = dotfiles_to_copy.merge(personal_only)
+    end
+
+    # development_profile is no longer copied — it's sourced directly from the repo
+
+    dotfiles_to_copy.each do |source, target|
       next unless File.exist?(source)
 
       if File.exist?(target) && !@dry_run
@@ -200,15 +222,15 @@ class DotfilesSync
       end
     end
 
-    # Handle zshrc specially - create a personal version that sources Square's config
+    # Generate a stub zshrc that sources the right variant from the repo
     create_personal_zshrc
   end
 
   def create_personal_zshrc
-    puts "🐚 Creating personal zshrc that works with Square's config..."
+    variant = work_mode? ? "zshrc_work" : "zshrc_personal"
+    puts "🐚 Creating ~/.zshrc stub (sources #{variant} from repo)..."
 
     zshrc_target = "#{ENV['HOME']}/.zshrc"
-    zshrc_source = './configs/shell/zshrc'
 
     # Backup existing zshrc if it exists
     if File.exist?(zshrc_target) && !@dry_run
@@ -218,42 +240,15 @@ class DotfilesSync
     end
 
     unless @dry_run
-      # Create the personal zshrc that follows Square's override pattern
+      source_path = "#{@dotfiles_dir}/configs/shell/#{variant}"
       File.open(zshrc_target, 'w') do |f|
-        f.puts "#######################################################"
-        f.puts "# load Square specific zshrc; please don't change this bit."
-        f.puts "#######################################################"
-        f.puts "source ~/Development/config_files/square/zshrc"
-        f.puts "#######################################################"
-        f.puts ""
-        f.puts "###########################################"
-        f.puts "# Feel free to make your own changes below."
-        f.puts "###########################################"
-        f.puts ""
-        f.puts "# load the aliases in config_files files (optional)"
-        f.puts "source ~/Development/config_files/square/aliases"
-        f.puts ""
-        f.puts "[[ -f \"$HOME/.aliases\" ]] && source \"$HOME/.aliases\""
-        f.puts "[[ -f \"$HOME/.localaliases\" ]] && source \"$HOME/.localaliases\""
-        f.puts ""
-        
-        # Add the personal configuration from the source file
-        if File.exist?(zshrc_source)
-          File.readlines(zshrc_source).each do |line|
-            # Skip the header comments and add the personal config
-            next if line.start_with?('# =============================================================================')
-            next if line.start_with?('# Mike\'s Optimized Zsh Configuration')
-            next if line.start_with?('# Performance optimized configuration')
-            next if line.start_with?('# Key optimization:')
-            next if line.strip.empty?
-            
-            f.puts line
-          end
-        end
+        f.puts "# Generated by dotfiles-sync — edit the source file instead:"
+        f.puts "# #{source_path}"
+        f.puts "source #{source_path}"
       end
     end
 
-    puts "📄 Created personal .zshrc that sources Square's config first"
+    puts "📄 Created ~/.zshrc -> #{variant}"
   end
 
   def install_fonts_and_themes

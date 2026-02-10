@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc:*)",
+      "Bash(ruby -c:*)",
+      "Bash(zsh:*)",
+      "Bash(echo:*)",
+      "Bash(git -C /Users/msilvis/Development/dotfiles rm configs/shell/zshrc)"
+    ]
+  }
+}
