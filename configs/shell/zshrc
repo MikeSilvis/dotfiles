@@ -147,7 +147,7 @@ fi
 
 # Override git to detect main vs master on checkout
 function git() {
-  if [[ "$1" == "checkout" && ("$2" == "main" || "$2" == "master") ]]; then
+  if [[ "$1" == "checkout" && ("$2" == "main" || "$2" == "master") && $# -eq 2 ]]; then
     local default_branch=$(command git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
     
     if [[ -z "$default_branch" ]]; then
