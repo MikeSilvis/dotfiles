@@ -62,6 +62,7 @@ class DotfilesSync
     check_and_install_oh_my_zsh
     check_and_install_oh_my_posh
     check_and_install_nerd_fonts
+    check_and_install_docker
     install_mise_config
     setup_touch_id_sudo
   end
@@ -197,25 +198,27 @@ class DotfilesSync
   
   def setup_oh_my_posh_theme
     puts "🎨 Setting up Oh My Posh theme configuration..."
-    
+
     theme_dir = File.expand_path("~/.oh-my-posh/themes")
     theme_file = File.join(theme_dir, "gruvbox.omp.json")
     local_theme = File.join(@dotfiles_dir, "configs/oh-my-posh/themes/gruvbox.omp.json")
-    
+
+    unless File.exist?(local_theme)
+      puts "⚠️  Local gruvbox theme not found at #{local_theme}"
+      return
+    end
+
     # Create theme directory if it doesn't exist
-    unless Dir.exist?(theme_dir)
-      puts "📁 Creating Oh My Posh themes directory..."
-      FileUtils.mkdir_p(theme_dir)
+    unless @dry_run
+      FileUtils.mkdir_p(theme_dir) unless Dir.exist?(theme_dir)
     end
-    
-    # Copy theme file if it doesn't exist or is older than our local version
-    if !File.exist?(theme_file) || (File.exist?(local_theme) && File.mtime(local_theme) > File.mtime(theme_file))
-      puts "📋 Installing Gruvbox theme locally..."
-      FileUtils.cp(local_theme, theme_file) if File.exist?(local_theme)
-      puts "✅ Local theme configuration ready"
-    else
-      puts "✅ Oh My Posh theme already configured"
+
+    # Always copy theme file to ensure it's up to date
+    puts "📋 Installing Gruvbox theme locally..."
+    unless @dry_run
+      FileUtils.cp(local_theme, theme_file)
     end
+    puts "✅ Local theme configuration ready"
   end
 
   def check_and_install_nerd_fonts
@@ -230,6 +233,31 @@ class DotfilesSync
       puts "✅ Nerd Fonts already installed"
     else
       puts "📝 Nerd Fonts will be installed from local font files during sync"
+    end
+  end
+
+  def check_and_install_docker
+    puts "🐳 Checking Docker installation..."
+
+    unless system("which docker > /dev/null 2>&1")
+      puts "📦 Installing Docker CLI via Homebrew..."
+      run_command("brew install docker", "Installing Docker CLI")
+    else
+      puts "✅ Docker CLI already installed"
+    end
+
+    unless system("which docker-compose > /dev/null 2>&1")
+      puts "📦 Installing Docker Compose via Homebrew..."
+      run_command("brew install docker-compose", "Installing Docker Compose")
+    else
+      puts "✅ Docker Compose already installed"
+    end
+
+    unless system("which colima > /dev/null 2>&1")
+      puts "📦 Installing Colima (lightweight Docker runtime)..."
+      run_command("brew install colima", "Installing Colima")
+    else
+      puts "✅ Colima already installed"
     end
   end
 

@@ -45,8 +45,9 @@ plugins=(git sudo alias-finder jsontools)
 source "$ZSH/oh-my-zsh.sh"
 
 # --- Oh My Posh ---
-command -v oh-my-posh &>/dev/null && \
+if command -v oh-my-posh &>/dev/null && [[ -f ~/.oh-my-posh/themes/gruvbox.omp.json ]]; then
   eval "$(oh-my-posh init zsh --config ~/.oh-my-posh/themes/gruvbox.omp.json)"
+fi
 
 # --- Personal aliases ---
 [[ -f "$HOME/.aliases" ]] && source "$HOME/.aliases"
