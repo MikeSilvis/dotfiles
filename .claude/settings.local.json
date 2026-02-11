@@ -12,7 +12,13 @@
       "Bash(defaults write:*)",
       "Bash(bundle exec ruby:*)",
       "Bash(bundle install:*)",
-      "Bash(bundle exec rspec:*)"
+      "Bash(bundle exec rspec:*)",
+      "Bash(fc-cache:*)",
+      "Bash(fc-list:*)",
+      "Bash(ls:*)",
+      "Bash(mise ls:*)",
+      "Bash(mise trust:*)",
+      "Bash(mise settings:*)"
     ]
   }
 }

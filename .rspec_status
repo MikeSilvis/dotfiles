@@ -1,9 +1,9 @@
 example_id                            | status | run_time        |
 ------------------------------------- | ------ | --------------- |
-./spec/dotfiles_sync_spec.rb[1:1:1]   | passed | 0.00051 seconds |
-./spec/dotfiles_sync_spec.rb[1:1:2]   | passed | 0.00024 seconds |
-./spec/dotfiles_sync_spec.rb[1:2:1]   | passed | 0.05799 seconds |
-./spec/dotfiles_sync_spec.rb[1:2:2]   | failed | 0.05667 seconds |
-./spec/dotfiles_sync_spec.rb[1:2:3]   | passed | 0.04843 seconds |
-./spec/dotfiles_sync_spec.rb[1:3:1:1] | passed | 0.00018 seconds |
-./spec/dotfiles_sync_spec.rb[1:3:1:2] | passed | 0.00351 seconds |
+./spec/dotfiles_sync_spec.rb[1:1:1]   | passed | 0.00137 seconds |
+./spec/dotfiles_sync_spec.rb[1:1:2]   | passed | 0.00059 seconds |
+./spec/dotfiles_sync_spec.rb[1:2:1]   | passed | 0.15065 seconds |
+./spec/dotfiles_sync_spec.rb[1:2:2]   | failed | 0.11787 seconds |
+./spec/dotfiles_sync_spec.rb[1:2:3]   | passed | 0.11356 seconds |
+./spec/dotfiles_sync_spec.rb[1:3:1:1] | passed | 0.00031 seconds |
+./spec/dotfiles_sync_spec.rb[1:3:1:2] | passed | 0.00747 seconds |

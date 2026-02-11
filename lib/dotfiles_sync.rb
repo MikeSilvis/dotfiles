@@ -62,6 +62,7 @@ class DotfilesSync
     check_and_install_oh_my_zsh
     check_and_install_oh_my_posh
     check_and_install_nerd_fonts
+    install_mise_config
   end
 
   def check_and_install_homebrew
@@ -109,6 +110,23 @@ class DotfilesSync
     else
       puts "✅ mise already installed"
     end
+  end
+
+  def install_mise_config
+    puts "🔧 Installing mise configuration..."
+
+    mise_source = "./configs/mise/config.toml"
+    return unless File.exist?(mise_source)
+
+    mise_config_dir = "#{ENV['HOME']}/.config/mise"
+    target = "#{mise_config_dir}/config.toml"
+
+    unless @dry_run
+      FileUtils.mkdir_p(mise_config_dir)
+      FileUtils.cp(mise_source, target)
+    end
+
+    puts "✅ mise config installed (auto-trust enabled)"
   end
 
   def check_and_install_oh_my_zsh
