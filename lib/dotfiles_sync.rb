@@ -56,6 +56,7 @@ class DotfilesSync
     else
       check_and_install_homebrew
       check_and_install_zsh
+      check_and_install_mise
     end
 
     check_and_install_oh_my_zsh
@@ -96,6 +97,17 @@ class DotfilesSync
       end
     else
       puts "✅ zsh already installed"
+    end
+  end
+
+  def check_and_install_mise
+    puts "🔧 Checking mise installation..."
+
+    unless system("which mise > /dev/null 2>&1")
+      puts "📦 Installing mise via Homebrew..."
+      run_command("brew install mise", "Installing mise")
+    else
+      puts "✅ mise already installed"
     end
   end
 
@@ -357,6 +369,14 @@ class DotfilesSync
       puts "⚙️  Installing iTerm2 preferences..."
       unless @dry_run
         FileUtils.cp(prefs_file, target)
+
+        # Ensure custom folder loading is disabled so iTerm2 doesn't try to
+        # load from a machine-specific path that may not exist.
+        system("defaults", "write", "com.googlecode.iterm2", "LoadPrefsFromCustomFolder", "-bool", "false")
+        system("defaults", "write", "com.googlecode.iterm2", "PrefsCustomFolder", "-string", "")
+
+        # Set the default profile to "Development" so the dynamic profile is active on first launch
+        system("defaults", "write", "com.googlecode.iterm2", "Default Bookmark Guid", "-string", "Development")
       end
     end
 

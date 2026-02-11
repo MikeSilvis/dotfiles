@@ -6,7 +6,13 @@
       "Bash(zsh:*)",
       "Bash(echo:*)",
       "Bash(git -C /Users/msilvis/Development/dotfiles rm configs/shell/zshrc)",
-      "Bash(./bin/dotfiles-sync:*)"
+      "Bash(./bin/dotfiles-sync:*)",
+      "Bash(plutil:*)",
+      "Bash(defaults read:*)",
+      "Bash(defaults write:*)",
+      "Bash(bundle exec ruby:*)",
+      "Bash(bundle install:*)",
+      "Bash(bundle exec rspec:*)"
     ]
   }
 }
