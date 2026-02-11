@@ -23,7 +23,9 @@
         "Blue Component": 0.0,
         "Alpha Component": 0.3
       },
-      "Font": "MesloLGLNerdFontMono-Regular",
+      "Font": "MesloLGSNerdFontMono-Regular",
+      "Non Ascii Font": "MesloLGSNerdFontMono-Regular",
+      "Use Non-ASCII Font": false,
       "Font Size": 14,
       "Use Bold Font": false,
       "Use Bright Bold": true,
@@ -42,8 +44,6 @@
       "Close Sessions On End": true,
       "Allow Title Reporting": false,
       "Allow Title Setting": false,
-      "Disable Window Resizing": false,
-      "Window Type": 0,
       "Window Type": 0,
       "Columns": 120,
       "Rows": 30,
@@ -72,40 +72,10 @@
         "Alpha Component": 1.0
       },
       "Smart Cursor Color": true,
-      "Minimum Contrast": 0.0,
-      "Cursor Boost": 0.0,
-      "Blinking Cursor": false,
-      "Use Bright Bold": true,
-      "Use Bold Font": false,
-      "Use Italic Font": true,
-      "Use Thin Strokes": false,
-      "ASCII Anti Aliased": true,
-      "Non-ASCII Anti Aliased": true,
       "Ambiguous Double Width": false,
       "Draw Powerline Glyphs": true,
       "Staminate": false,
       "Unicode Version": 9,
-      "Use Cursor Guide": true,
-      "Cursor Guide Color": {
-        "Red Component": 0.0,
-        "Green Component": 0.8,
-        "Blue Component": 0.0,
-        "Alpha Component": 0.3
-      },
-      "Badge Text": "DEV",
-      "Badge Color": {
-        "Red Component": 0.0,
-        "Green Component": 0.8,
-        "Blue Component": 0.0,
-        "Alpha Component": 1.0
-      },
-      "Use Tab Color": true,
-      "Tab Color": {
-        "Red Component": 0.0,
-        "Green Component": 0.8,
-        "Blue Component": 0.0,
-        "Alpha Component": 1.0
-      },
       "Triggers": [
         {
           "Partial String": "ERROR",

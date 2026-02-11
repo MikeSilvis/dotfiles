@@ -63,6 +63,7 @@ class DotfilesSync
     check_and_install_oh_my_posh
     check_and_install_nerd_fonts
     install_mise_config
+    setup_touch_id_sudo
   end
 
   def check_and_install_homebrew
@@ -129,6 +130,43 @@ class DotfilesSync
     puts "✅ mise config installed (auto-trust enabled)"
   end
 
+  def setup_touch_id_sudo
+    puts "🔐 Checking Touch ID for sudo..."
+
+    sudo_local = "/etc/pam.d/sudo_local"
+    pam_tid_configured = File.exist?(sudo_local) &&
+                         File.read(sudo_local).include?("pam_tid.so")
+
+    if pam_tid_configured
+      puts "✅ Touch ID for sudo already configured"
+      return
+    end
+
+    # Ensure pam-reattach is installed (allows Touch ID in tmux/screen)
+    unless system("brew list pam-reattach > /dev/null 2>&1")
+      puts "📦 Installing pam-reattach (Touch ID support in tmux)..."
+      run_command("brew install pam-reattach", "Installing pam-reattach")
+    end
+
+    puts "🔐 Configuring Touch ID for sudo via /etc/pam.d/sudo_local..."
+    puts "   (This file survives macOS updates, unlike /etc/pam.d/sudo)"
+
+    unless @dry_run
+      sudo_local_content = <<~PAM
+        # Touch ID for sudo — managed by dotfiles-sync
+        auth       optional       /opt/homebrew/lib/pam/pam_reattach.so
+        auth       sufficient     pam_tid.so
+      PAM
+
+      # Writing to /etc/pam.d requires sudo
+      IO.popen(["sudo", "tee", sudo_local], "w") do |io|
+        io.write(sudo_local_content)
+      end
+    end
+
+    puts "✅ Touch ID for sudo configured"
+  end
+
   def check_and_install_oh_my_zsh
     puts "🎨 Checking Oh My Zsh installation..."
     
@@ -183,8 +221,9 @@ class DotfilesSync
   def check_and_install_nerd_fonts
     puts "🎨 Checking Nerd Fonts installation..."
     
-    # Check if MesloLGL Nerd Font is installed
-    nerd_font_installed = system("fc-list | grep -i 'meslolgl.*nerd' > /dev/null 2>&1") || 
+    # Check if MesloLGS Nerd Font is installed (preferred) or MesloLGL as fallback
+    nerd_font_installed = system("fc-list | grep -i 'meslolg[sl].*nerd' > /dev/null 2>&1") ||
+                         Dir.glob("#{ENV['HOME']}/Library/Fonts/MesloLGS*NerdFont*").any? ||
                          Dir.glob("#{ENV['HOME']}/Library/Fonts/MesloLGL*NerdFont*").any?
     
     if nerd_font_installed
@@ -296,7 +335,7 @@ class DotfilesSync
       Dir.glob("#{fonts_source}/*.{ttf,otf,ttc}").each do |font_file|
         font_name = File.basename(font_file)
         target = "#{fonts_dir}/#{font_name}"
-        
+
         if File.exist?(target) && !@dry_run
           puts "⚠️  Font #{font_name} already exists, skipping..."
           next
@@ -306,6 +345,13 @@ class DotfilesSync
         unless @dry_run
           FileUtils.cp(font_file, target)
         end
+      end
+
+      puts "🔄 Refreshing font cache..."
+      unless @dry_run
+        system("atsutil databases -removeUser > /dev/null 2>&1")
+        system("atsutil server -shutdown > /dev/null 2>&1")
+        sleep 1
       end
     end
   end
@@ -347,7 +393,14 @@ class DotfilesSync
 
   def install_iterm2_config
     puts "🖥️  Installing iTerm2 configuration..."
-    
+
+    if system("pgrep -q iTerm2")
+      puts "⚠️  iTerm2 is currently running!"
+      puts "   Please quit iTerm2 before syncing to avoid preferences being overwritten."
+      puts "   After sync completes, reopen iTerm2 to load the new configuration."
+      return unless @force
+    end
+
     iterm2_source = "./configs/iterm2"
     return unless Dir.exist?(iterm2_source)
 
@@ -394,7 +447,7 @@ class DotfilesSync
         system("defaults", "write", "com.googlecode.iterm2", "PrefsCustomFolder", "-string", "")
 
         # Set the default profile to "Development" so the dynamic profile is active on first launch
-        system("defaults", "write", "com.googlecode.iterm2", "Default Bookmark Guid", "-string", "Development")
+        system("defaults", "write", "com.googlecode.iterm2", "Default Bookmark Guid", "-string", "DEVELOPMENT-PROFILE-GUID")
       end
     end
 

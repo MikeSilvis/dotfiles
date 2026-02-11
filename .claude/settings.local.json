@@ -19,7 +19,13 @@
       "Bash(mise ls:*)",
       "Bash(mise trust:*)",
       "Bash(mise settings:*)",
-      "Bash(/usr/libexec/PlistBuddy:*)"
+      "Bash(/usr/libexec/PlistBuddy:*)",
+      "Bash(brew list:*)",
+      "Bash(brew search:*)",
+      "Bash(brew info:*)",
+      "WebSearch",
+      "Bash(brew install:*)",
+      "Bash(python3:*)"
     ]
   }
 }
