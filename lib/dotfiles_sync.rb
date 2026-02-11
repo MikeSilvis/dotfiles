@@ -432,48 +432,14 @@ class DotfilesSync
     iterm2_source = "./configs/iterm2"
     return unless Dir.exist?(iterm2_source)
 
-    iterm2_support_dir = "#{ENV['HOME']}/Library/Application Support/iTerm2"
-    iterm2_dynamic_profiles_dir = "#{iterm2_support_dir}/DynamicProfiles"
-    iterm2_color_presets_dir = "#{iterm2_support_dir}/ColorPresets"
-
-    # Install color schemes
-    color_files = Dir.glob("#{iterm2_source}/*.itermcolors")
-    if !color_files.empty?
+    # Install full iTerm2 preferences plist
+    plist_source = "#{iterm2_source}/com.googlecode.iterm2.plist"
+    plist_target = "#{ENV['HOME']}/Library/Preferences/com.googlecode.iterm2.plist"
+    if File.exist?(plist_source)
+      puts "📋 Installing iTerm2 preferences plist..."
       unless @dry_run
-        FileUtils.mkdir_p(iterm2_color_presets_dir)
-      end
-
-      color_files.each do |color_file|
-        color_name = File.basename(color_file)
-        target = "#{iterm2_color_presets_dir}/#{color_name}"
-
-        puts "🎨 Installing iTerm2 color scheme: #{color_name}"
-        unless @dry_run
-          FileUtils.cp(color_file, target)
-        end
-      end
-    end
-
-    # Set the default profile to our dynamic profile
-    unless @dry_run
-      system("defaults", "write", "com.googlecode.iterm2", "Default Bookmark Guid", "-string", "DEVELOPMENT-PROFILE-GUID")
-    end
-
-    # Install dynamic profiles
-    profiles_source = "#{iterm2_source}/profiles"
-    if Dir.exist?(profiles_source)
-      unless @dry_run
-        FileUtils.mkdir_p(iterm2_dynamic_profiles_dir)
-      end
-
-      Dir.glob("#{profiles_source}/*.json").each do |profile_file|
-        profile_name = File.basename(profile_file)
-        target = "#{iterm2_dynamic_profiles_dir}/#{profile_name}"
-        
-        puts "📋 Installing iTerm2 profile: #{profile_name}"
-        unless @dry_run
-          FileUtils.cp(profile_file, target)
-        end
+        FileUtils.cp(plist_source, plist_target)
+        system("defaults", "read", "com.googlecode.iterm2", "> /dev/null 2>&1")
       end
     end
 
