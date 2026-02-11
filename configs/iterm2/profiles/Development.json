@@ -23,7 +23,7 @@
         "Blue Component": 0.0,
         "Alpha Component": 0.3
       },
-      "Font": "MesloLGLNerdFont-Regular",
+      "Font": "MesloLGLNerdFontMono-Regular",
       "Font Size": 14,
       "Use Bold Font": false,
       "Use Bright Bold": true,

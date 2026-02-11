@@ -18,7 +18,8 @@
       "Bash(ls:*)",
       "Bash(mise ls:*)",
       "Bash(mise trust:*)",
-      "Bash(mise settings:*)"
+      "Bash(mise settings:*)",
+      "Bash(/usr/libexec/PlistBuddy:*)"
     ]
   }
 }
