@@ -26,7 +26,8 @@
       "WebSearch",
       "Bash(brew install:*)",
       "Bash(python3:*)",
-      "Bash(sips:*)"
+      "Bash(sips:*)",
+      "Bash(git -C:*)"
     ]
   }
 }
