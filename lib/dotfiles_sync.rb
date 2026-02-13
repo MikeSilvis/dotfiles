@@ -29,6 +29,7 @@ class DotfilesSync
     begin
       install_system_dependencies
       copy_personal_dotfiles
+      install_vim_config
       install_fonts_and_themes
       install_iterm2_config
       install_editor_configs
@@ -321,6 +322,58 @@ class DotfilesSync
 
     # Generate a stub zshrc that sources the right variant from the repo
     create_personal_zshrc
+  end
+
+  def install_vim_config
+    puts "📝 Installing Vim configuration (colors, etc.)..."
+
+    vim_source = "#{@dotfiles_dir}/configs/vim/vim"
+    vim_target_dir = "#{ENV['HOME']}/.vim"
+    vundle_path = "#{vim_target_dir}/bundle/Vundle.vim"
+
+    if Dir.exist?(vim_source)
+      unless @dry_run
+        FileUtils.mkdir_p(vim_target_dir)
+      end
+
+      Dir.glob("#{vim_source}/**/*").each do |path|
+        next if File.directory?(path)
+
+        relative = path.sub(%r{\A#{Regexp.escape(vim_source)}/}, "")
+        target = "#{vim_target_dir}/#{relative}"
+
+        if File.exist?(target) && !@dry_run
+          puts "  ⏭️  #{relative} already exists, skipping..."
+          next
+        end
+
+        puts "  📄 #{relative}"
+        unless @dry_run
+          FileUtils.mkdir_p(File.dirname(target))
+          FileUtils.cp(path, target)
+        end
+      end
+    end
+
+    # Install Vundle if not present
+    unless Dir.exist?(vundle_path)
+      puts "  📦 Installing Vundle..."
+      unless @dry_run
+        FileUtils.mkdir_p(File.dirname(vundle_path))
+        run_command("git clone https://github.com/VundleVim/Vundle.vim.git #{vundle_path}", "Clone Vundle")
+      end
+    else
+      puts "  ✅ Vundle already installed"
+    end
+
+    # Install plugins via Vundle (only if vim is available and we have Vundle)
+    if Dir.exist?(vundle_path) && system("which vim > /dev/null 2>&1") && !@dry_run
+      puts "  🔌 Installing Vim plugins (PluginInstall)..."
+      system("vim -c PluginInstall -c qa")
+      puts "✅ Vim config and plugins installed."
+    else
+      puts "✅ Vim config installed."
+    end
   end
 
   def create_personal_zshrc
