@@ -96,13 +96,6 @@ function bazelRun() {
 function monday() {
   killall Xcode
 
-  # Clear iTerm cache for better performance
-  echo "🧹 Clearing iTerm cache..."
-  rm -rf ~/Library/Caches/com.googlecode.iterm2 2>/dev/null || true
-  rm -rf ~/Library/Application\ Support/iTerm2/SavedState 2>/dev/null || true
-  rm -f ~/Library/Application\ Support/iTerm2/chatdb.sqlite* 2>/dev/null || true
-  echo "✅ iTerm cache cleared"
-
   cd ~/Development/topsoil && git pull && ./compost mobile
 
   cd ~/Development/ios-register && git clean -xdf && ./tools/bazel clean --expunge && dxdd
@@ -154,44 +147,6 @@ function sync() {
 alias sync-dry='sync --dry-run'
 alias sync-verbose='sync --verbose'
 alias sync-force='sync --force'
-
-# =============================================================================
-# Cache Management Functions
-# =============================================================================
-
-# clear-iterm-cache() - Clear iTerm2 cache files for better performance
-function clear-iterm-cache() {
-    echo "🧹 Clearing iTerm2 cache files..."
-    
-    # Close iTerm2 first
-    echo "⚠️  Please close iTerm2 before clearing cache"
-    echo "Press Enter when iTerm2 is closed..."
-    read -r
-    
-    # Clear cache files
-    local cache_dir="$HOME/Library/Caches/com.googlecode.iterm2"
-    if [ -d "$cache_dir" ]; then
-        echo "🗑️  Removing iTerm cache directory..."
-        rm -rf "$cache_dir"
-        echo "✅ Cleared iTerm cache"
-    else
-        echo "ℹ️  No iTerm cache found"
-    fi
-    
-    # Clear saved state
-    local saved_state="$HOME/Library/Application Support/iTerm2/SavedState"
-    if [ -d "$saved_state" ]; then
-        echo "🗑️  Removing saved state..."
-        rm -rf "$saved_state"
-        echo "✅ Cleared saved state"
-    fi
-    
-    echo "🎉 iTerm cache cleared! Restart iTerm2 to see improvements."
-}
-
-# Aliases for cache management
-alias clear-cache='clear-iterm-cache'
-alias iterm-cache='clear-iterm-cache'
 
 # Editor aliases
 alias c='cursor .'                    # Open Cursor in current directory

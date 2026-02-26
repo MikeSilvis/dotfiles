@@ -32,6 +32,7 @@ class DotfilesSync
       install_vim_config
       install_fonts_and_themes
       install_iterm2_config
+      install_ghostty_config
       install_editor_configs
       install_xcode_config
       puts "✅ Personal settings sync completed successfully!"
@@ -497,6 +498,23 @@ class DotfilesSync
     end
 
     puts "🔄 Please restart iTerm2 to apply configuration changes"
+  end
+
+  def install_ghostty_config
+    puts "👻 Installing Ghostty configuration..."
+
+    ghostty_source = "./configs/ghostty/config"
+    return unless File.exist?(ghostty_source)
+
+    ghostty_config_dir = "#{ENV['HOME']}/.config/ghostty"
+    ghostty_target = "#{ghostty_config_dir}/config"
+
+    unless @dry_run
+      FileUtils.mkdir_p(ghostty_config_dir)
+      FileUtils.ln_sf(File.expand_path(ghostty_source), ghostty_target)
+    end
+
+    puts "✅ Ghostty config symlinked: #{ghostty_target}"
   end
 
   def install_editor_configs

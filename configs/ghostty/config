@@ -1,0 +1,56 @@
+# =============================================================================
+# Ghostty Configuration
+# Migrated from iTerm2 Development profile
+# =============================================================================
+
+# Font
+font-family = MesloLGS Nerd Font Mono
+font-size = 14
+
+# Window
+# window-columns and window-rows are not supported in this version of Ghostty
+# window-columns = 120
+# window-rows = 30
+
+# Background
+background-opacity = 0.90
+background-blur-radius = 20
+
+# Scrollback
+scrollback-limit = 10000
+
+# Cursor
+cursor-style = block
+cursor-style-blink = false
+
+# Bell
+# visual-bell is not supported in this version of Ghostty
+# visual-bell = true
+
+# =============================================================================
+# Color Palette (migrated from iTerm2 Development profile)
+# =============================================================================
+
+background = #1b1b1b
+foreground = #f7f7f7
+cursor-color = #bbbbbb
+selection-background = #207483
+selection-foreground = #f7f7f7
+
+# ANSI colors
+palette = 0=#000000
+palette = 1=#b84131
+palette = 2=#7da900
+palette = 3=#c4a500
+palette = 4=#62a3c4
+palette = 5=#ba8acc
+palette = 6=#207383
+palette = 7=#a1a1a1
+palette = 8=#7a7a7a
+palette = 9=#d6837c
+palette = 10=#c4f137
+palette = 11=#fee14d
+palette = 12=#8dcff0
+palette = 13=#f79aff
+palette = 14=#6ad9cf
+palette = 15=#f7f7f7
