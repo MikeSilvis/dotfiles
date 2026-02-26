@@ -54,3 +54,9 @@ palette = 12=#83a598
 palette = 13=#d3869b
 palette = 14=#8ec07c
 palette = 15=#ebdbb2
+
+# Misc
+confirm-close-surface = false
+
+# Keybindings
+keybind = ctrl+alt+enter=ignore

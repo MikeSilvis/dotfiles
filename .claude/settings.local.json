@@ -27,7 +27,8 @@
       "Bash(brew install:*)",
       "Bash(python3:*)",
       "Bash(sips:*)",
-      "Bash(git -C:*)"
+      "Bash(git -C:*)",
+      "Bash(head:*)"
     ]
   }
 }
