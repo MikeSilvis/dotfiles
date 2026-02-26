@@ -65,6 +65,7 @@ class DotfilesSync
     check_and_install_oh_my_posh
     check_and_install_nerd_fonts
     check_and_install_docker
+    check_and_install_ghostty
     install_mise_config
     setup_touch_id_sudo
   end
@@ -260,6 +261,17 @@ class DotfilesSync
       run_command("brew install colima", "Installing Colima")
     else
       puts "✅ Colima already installed"
+    end
+  end
+
+  def check_and_install_ghostty
+    puts "👻 Checking Ghostty installation..."
+
+    unless system("which ghostty > /dev/null 2>&1")
+      puts "📦 Installing Ghostty via Homebrew..."
+      run_command("brew install --cask ghostty", "Installing Ghostty")
+    else
+      puts "✅ Ghostty already installed"
     end
   end
 
