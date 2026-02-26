@@ -27,8 +27,15 @@ function fast_git_prompt() {
     fi
 }
 
+function prompt_pwd() {
+    local p="${(%):-%~}"
+    p="${p//\/Development\//\/}"
+    p="${p//\/workspaces\//\/}"
+    echo "$p"
+}
+
 # Set the prompt with fast git info
-PROMPT='%F{251}%~%F{reset}$(fast_git_prompt) '
+PROMPT='%F{251}$(prompt_pwd)%F{reset}$(fast_git_prompt) '
 
 # Alternative: Even faster version that only shows branch name
 # Uncomment this and comment out the above for maximum speed

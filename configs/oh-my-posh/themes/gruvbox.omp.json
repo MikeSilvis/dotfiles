@@ -19,7 +19,7 @@
             "style": "full"
           },
           "style": "powerline",
-          "template": " {{ .Path }} ",
+          "template": " {{ .Path | replace \"/Development/\" \"/\" | replace \"/workspaces/\" \"/\" }} ",
           "type": "path"
         },
         {
