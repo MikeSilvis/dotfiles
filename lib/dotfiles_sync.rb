@@ -18,6 +18,51 @@ class DotfilesSync
     @dotfiles_dir = options[:dotfiles_dir] || Dir.pwd
   end
 
+  def cleanup_sims
+    puts "🧹 Cleaning up iOS simulators..."
+    puts "   Keeping one iPhone + one iPad on the latest iOS runtime."
+    puts
+
+    latest_runtime = `xcrun simctl list runtimes --json \
+      | jq -r '[.runtimes[] | select(.name | startswith("iOS")) | select(.isAvailable == true)] | sort_by(.version) | last | .identifier'`.strip
+
+    if latest_runtime.empty? || latest_runtime == "null"
+      puts "❌ No available iOS runtimes found."
+      exit 1
+    end
+
+    puts "📱 Latest iOS runtime: #{latest_runtime}"
+
+    keep_iphone = `xcrun simctl list devices --json \
+      | jq -r --arg rt "#{latest_runtime}" '.devices[$rt] // [] | map(select(.name | test("iPhone"; "i"))) | first | .udid // empty'`.strip
+
+    keep_ipad = `xcrun simctl list devices --json \
+      | jq -r --arg rt "#{latest_runtime}" '.devices[$rt] // [] | map(select(.name | test("iPad"; "i"))) | first | .udid // empty'`.strip
+
+    puts "⚠️  No iPhone simulator found for #{latest_runtime}" if keep_iphone.empty?
+    puts "⚠️  No iPad simulator found for #{latest_runtime}" if keep_ipad.empty?
+    puts "✅ Keeping iPhone: #{keep_iphone.empty? ? "(none)" : keep_iphone}"
+    puts "✅ Keeping iPad:   #{keep_ipad.empty? ? "(none)" : keep_ipad}"
+    puts
+
+    keep_set = [keep_iphone, keep_ipad].reject(&:empty?).to_set
+
+    all_udids = `xcrun simctl list devices --json \
+      | jq -r '.devices | to_entries[] | .value[] | .udid'`.strip.split("\n")
+
+    deleted = 0
+    all_udids.each do |udid|
+      next if keep_set.include?(udid)
+
+      puts "🗑️  Deleting #{udid}..."
+      system("xcrun simctl delete #{udid}") unless @dry_run
+      deleted += 1
+    end
+
+    puts
+    puts "✅ Done. Deleted #{@dry_run ? "(dry-run) " : ""}#{deleted} simulator(s)."
+  end
+
   def run
     puts "🚀 Welcome to Mike's Personal Dotfiles Sync!"
     puts "📁 Backup directory: #{@backup_dir}" unless @dry_run
@@ -66,6 +111,7 @@ class DotfilesSync
     check_and_install_nerd_fonts
     check_and_install_docker
     check_and_install_ghostty
+    check_and_install_jq
     install_mise_config
     setup_touch_id_sudo
   end
@@ -261,6 +307,17 @@ class DotfilesSync
       run_command("brew install colima", "Installing Colima")
     else
       puts "✅ Colima already installed"
+    end
+  end
+
+  def check_and_install_jq
+    puts "🔍 Checking jq installation..."
+
+    unless system("which jq > /dev/null 2>&1")
+      puts "📦 Installing jq via Homebrew..."
+      run_command("brew install jq", "Installing jq")
+    else
+      puts "✅ jq already installed"
     end
   end
 

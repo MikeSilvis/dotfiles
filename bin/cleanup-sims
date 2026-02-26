@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+
+lib_path = File.expand_path('../lib', __dir__)
+$LOAD_PATH.unshift(lib_path) unless $LOAD_PATH.include?(lib_path)
+
+require 'dotfiles_sync'
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: cleanup-sims [options]"
+
+  opts.on("-d", "--dry-run", "Show what would be deleted without making changes") do
+    options[:dry_run] = true
+  end
+
+  opts.on("-h", "--help", "Show this help message") do
+    puts opts
+    exit
+  end
+end.parse!
+
+DotfilesSync.new(options).cleanup_sims
