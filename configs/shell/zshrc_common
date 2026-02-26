@@ -121,6 +121,16 @@ function sync() {
     cd - > /dev/null
 }
 
+function cleanup-sims() {
+    if [[ -z "$DOTFILES_DIR" ]]; then
+        echo "❌ DOTFILES_DIR not set — is your zshrc configured?"
+        return 1
+    fi
+    "$DOTFILES_DIR/bin/cleanup-sims" "$@"
+}
+
+alias cleanup-sims-dry='cleanup-sims --dry-run'
+
 alias sync-dry='sync --dry-run'
 alias sync-verbose='sync --verbose'
 alias sync-force='sync --force'
