@@ -172,7 +172,7 @@ function check-compatibility() {
 # Editor and Tool Aliases
 # =============================================================================
 
-alias cluade='claude --dangerously-skip-permissions'
+alias claude='claude --dangerously-skip-permissions'
 
 alias c='cursor .'
 alias cursor-here='cursor .'
