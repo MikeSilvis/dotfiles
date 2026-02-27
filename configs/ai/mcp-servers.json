@@ -1,0 +1,37 @@
+{
+  "mcpServers": {
+    "render": {
+      "url": "https://mcp.render.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${RENDER_MCP_TOKEN}"
+      }
+    },
+    "MCP_DOCKER": {
+      "command": "docker",
+      "args": ["mcp", "gateway", "run"]
+    },
+    "Figma": {
+      "url": "https://mcp.figma.com/mcp",
+      "headers": {}
+    },
+    "Signoz": {
+      "url": "https://signoz-mcp.sillyhub.dev",
+      "headers": {}
+    },
+    "coolify": {
+      "command": "${NPX_PATH}",
+      "args": ["-y", "@masonator/coolify-mcp"],
+      "env": {
+        "COOLIFY_ACCESS_TOKEN": "${COOLIFY_ACCESS_TOKEN}",
+        "COOLIFY_BASE_URL": "https://sillyhub.dev"
+      }
+    },
+    "google-drive": {
+      "command": "${NPX_PATH}",
+      "args": ["-y", "@piotr-agier/google-drive-mcp"],
+      "env": {
+        "GOOGLE_DRIVE_OAUTH_CREDENTIALS": "${HOME}/.config/google-drive-mcp/gcp-oauth.keys.json"
+      }
+    }
+  }
+}

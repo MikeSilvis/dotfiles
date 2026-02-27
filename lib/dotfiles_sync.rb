@@ -4,6 +4,7 @@
 require 'fileutils'
 require 'optparse'
 require 'time'
+require 'json'
 require 'open3'
 
 # Main DotfilesSync class that handles all synchronization operations
@@ -80,6 +81,7 @@ class DotfilesSync
       install_ghostty_config
       install_editor_configs
       install_ai_skills
+      install_mcp_servers
       install_xcode_config
       puts "✅ Personal settings sync completed successfully!"
       puts "💡 You may need to restart your terminal or run 'source ~/.zshrc' to apply changes."
@@ -481,23 +483,29 @@ class DotfilesSync
         FileUtils.mkdir_p(fonts_dir)
       end
 
+      installed = []
+      skipped = []
+
       Dir.glob("#{fonts_source}/*.{ttf,otf,ttc}").each do |font_file|
         font_name = File.basename(font_file)
         target = "#{fonts_dir}/#{font_name}"
 
         if File.exist?(target) && !@dry_run
-          puts "⚠️  Font #{font_name} already exists, skipping..."
+          skipped << font_name
           next
         end
 
-        puts "📄 Installing font: #{font_name}"
         unless @dry_run
           FileUtils.cp(font_file, target)
         end
+        installed << font_name
       end
 
-      puts "🔄 Refreshing font cache..."
-      unless @dry_run
+      puts "  Installed: #{installed.empty? ? 'none' : installed.join(', ')}"
+      puts "  Skipped (already exist): #{skipped.empty? ? 'none' : skipped.join(', ')}" unless skipped.empty?
+
+      unless installed.empty? || @dry_run
+        puts "🔄 Refreshing font cache..."
         system("atsutil databases -removeUser > /dev/null 2>&1")
         system("atsutil server -shutdown > /dev/null 2>&1")
         sleep 1
@@ -743,6 +751,100 @@ class DotfilesSync
         puts "  ✅ Cursor: #{name}.mdc (on-demand)"
       end
     end
+  end
+
+  def install_mcp_servers
+    puts '🔌 Installing MCP servers...'
+
+    config_file = "#{@dotfiles_dir}/configs/ai/mcp-servers.json"
+    unless File.exist?(config_file)
+      puts "⏭️  No MCP server config found at #{config_file}"
+      return
+    end
+
+    config = JSON.parse(File.read(config_file))
+    servers = config['mcpServers']
+
+    unless servers.is_a?(Hash) && !servers.empty?
+      puts '⏭️  No MCP servers defined in config'
+      return
+    end
+
+    resolved = resolve_mcp_placeholders(servers)
+
+    install_mcp_servers_claude(resolved)
+    install_mcp_servers_cursor(resolved)
+
+    puts '✅ MCP servers installed'
+  end
+
+  def resolve_mcp_placeholders(obj)
+    case obj
+    when Hash then obj.transform_values { |v| resolve_mcp_placeholders(v) }
+    when Array then obj.map { |v| resolve_mcp_placeholders(v) }
+    when String then resolve_mcp_string(obj)
+    else obj
+    end
+  end
+
+  def resolve_mcp_string(str)
+    str.gsub(/\$\{([^}]+)\}/) do
+      var = Regexp.last_match(1)
+      if var == 'NPX_PATH'
+        npx_path
+      elsif ENV.key?(var) && !ENV[var].empty?
+        ENV.fetch(var)
+      else
+        puts "  ⚠️  Environment variable #{var} not set, leaving placeholder"
+        "${#{var}}"
+      end
+    end
+  end
+
+  def npx_path
+    @npx_path ||= begin
+      path = `which npx 2>/dev/null`.strip
+      if path.empty?
+        puts '  ⚠️  npx not found, leaving ${NPX_PATH} placeholder'
+        '${NPX_PATH}'
+      else
+        path
+      end
+    end
+  end
+
+  def install_mcp_servers_claude(resolved)
+    claude_settings_path = "#{Dir.home}/.claude/settings.json"
+    claude_dir = File.dirname(claude_settings_path)
+
+    existing = if File.exist?(claude_settings_path)
+                 JSON.parse(File.read(claude_settings_path))
+               else
+                 {}
+               end
+
+    existing['mcpServers'] = resolved
+
+    unless @dry_run
+      FileUtils.mkdir_p(claude_dir)
+      File.write(claude_settings_path, "#{JSON.pretty_generate(existing)}\n")
+    end
+
+    puts "  ✅ Claude Code: #{claude_settings_path}"
+  end
+
+  def install_mcp_servers_cursor(resolved)
+    cursor_mcp_path = "#{Dir.home}/.cursor/mcp.json"
+    cursor_dir = File.dirname(cursor_mcp_path)
+
+    output = { 'mcpServers' => resolved }
+
+    unless @dry_run
+      FileUtils.mkdir_p(cursor_dir)
+      File.write(cursor_mcp_path, "#{JSON.pretty_generate(output)}\n")
+    end
+
+    puts "  ✅ Cursor: #{cursor_mcp_path}"
   end
 
   def install_cursor_extension(extension)
