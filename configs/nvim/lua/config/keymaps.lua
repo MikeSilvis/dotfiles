@@ -24,6 +24,10 @@ map("n", "<leader>b", function()
   require("telescope.builtin").buffers()
 end, { desc = "Buffers" })
 
+-- Terminal (horizontal split below)
+map("n", "<leader>t", "<cmd>below split | terminal<cr>", { desc = "Open terminal below" })
+map("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+
 -- LSP keymaps (set when an LSP server attaches)
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("UserLspKeymaps", { clear = true }),

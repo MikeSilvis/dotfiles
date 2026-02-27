@@ -436,11 +436,11 @@ class DotfilesSync
 
     puts "  🔗 Symlinked #{nvim_target} -> #{nvim_source}"
 
-    # Install plugins via lazy.nvim (headless)
+    # Install and update plugins via lazy.nvim (headless)
     if system("which nvim > /dev/null 2>&1") && !@dry_run
-      puts "  🔌 Installing Neovim plugins (Lazy sync)..."
-      system('nvim --headless "+Lazy! sync" +qa')
-      puts "✅ Neovim config and plugins installed."
+      puts "  🔌 Updating Neovim plugins (Lazy update)..."
+      system('nvim --headless "+Lazy! update" +qa')
+      puts "✅ Neovim config and plugins updated."
     else
       puts "✅ Neovim config symlinked (run nvim to install plugins)."
     end
