@@ -792,6 +792,8 @@ class DotfilesSync
       var = Regexp.last_match(1)
       if var == 'NPX_PATH'
         npx_path
+      elsif var == 'NODE_BIN_DIR'
+        node_bin_dir
       elsif ENV.key?(var) && !ENV[var].empty?
         ENV.fetch(var)
       else
@@ -809,6 +811,17 @@ class DotfilesSync
         '${NPX_PATH}'
       else
         path
+      end
+    end
+  end
+
+  def node_bin_dir
+    @node_bin_dir ||= begin
+      path = npx_path
+      if path == '${NPX_PATH}'
+        '${NODE_BIN_DIR}'
+      else
+        File.dirname(path)
       end
     end
   end

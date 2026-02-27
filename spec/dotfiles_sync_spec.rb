@@ -150,6 +150,33 @@ RSpec.describe DotfilesSync do
         ensure
           ENV.delete('TEST_TOKEN')
         end
+
+        it "resolves NODE_BIN_DIR to the directory containing npx" do
+          config_with_node_bin = {
+            "mcpServers" => {
+              "node-server" => {
+                "command" => "${NPX_PATH}",
+                "args" => ["-y", "some-package"],
+                "env" => { "PATH" => "${NODE_BIN_DIR}:/usr/bin" }
+              }
+            }
+          }
+          config_dir = File.join(tmpdir, "configs", "ai")
+          File.write(File.join(config_dir, "mcp-servers.json"), JSON.generate(config_with_node_bin))
+
+          s = described_class.new(dotfiles_dir: tmpdir)
+          npx_path = `which npx 2>/dev/null`.strip
+          s.send(:install_mcp_servers)
+
+          cursor_mcp = JSON.parse(File.read(File.join(home_dir, ".cursor", "mcp.json")))
+          resolved_path = cursor_mcp['mcpServers']['node-server']['env']['PATH']
+
+          if npx_path.empty?
+            expect(resolved_path).to eq('${NODE_BIN_DIR}:/usr/bin')
+          else
+            expect(resolved_path).to start_with(File.dirname(npx_path))
+          end
+        end
       end
     end
 
