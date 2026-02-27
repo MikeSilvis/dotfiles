@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
-# cci-logs.sh — View logs for failing CircleCI builds
-# Usage: cci-logs.sh <vcs-type> <org> <repo> [branch]
-# Example: cci-logs.sh gh myorg myrepo main
+# cci-logs.sh — View logs for the latest failing CircleCI build
+# Usage: cci-logs.sh [branch]
+#
+# Auto-detects org/repo from the git remote (GitHub only).
+# Defaults to the current git branch if no branch is specified.
 #
 # Requires:
 #   - CIRCLE_TOKEN env var (https://app.circleci.com/settings/user/tokens)
-#   - jq (brew install jq / apt install jq)
+#     or configured via `circleci setup` (~/.circleci/cli.yml)
+#   - jq (brew install jq)
+#   - A GitHub git remote (origin)
 
 set -euo pipefail
 
@@ -21,7 +25,7 @@ die()  { echo -e "${RED}ERROR: $*${RESET}" >&2; exit 1; }
 info() { echo -e "${CYAN}▶ $*${RESET}"; }
 sep()  { echo -e "${BOLD}────────────────────────────────────────────${RESET}"; }
 
-# ── Validate inputs ──────────────────────────────────────────────────────────
+# ── Validate dependencies ──────────────────────────────────────────────────
 
 # Try to read token from CircleCI CLI config if not set in environment
 if [[ -z "${CIRCLE_TOKEN:-}" ]]; then
@@ -34,28 +38,36 @@ fi
 
 [[ -z "${CIRCLE_TOKEN:-}" ]] && die "No CircleCI token found.\nRun 'circleci setup' or set CIRCLE_TOKEN in your environment.\nGet a token at: https://app.circleci.com/settings/user/tokens"
 command -v jq &>/dev/null || die "jq is required (brew install jq)"
+git rev-parse --is-inside-work-tree &>/dev/null || die "Not inside a git repository."
 
-VCS="${1:-}"
-ORG="${2:-}"
-REPO="${3:-}"
-BRANCH="${4:-}"
+# ── Auto-detect org/repo from git remote ───────────────────────────────────
 
-if [[ -z "$VCS" || -z "$ORG" || -z "$REPO" ]]; then
-  echo "Usage: $0 <vcs-type> <org> <repo> [branch]"
-  echo "  vcs-type: gh (GitHub) or bb (Bitbucket)"
-  echo "  branch:   optional, defaults to current git branch"
-  exit 1
+REMOTE_URL=$(git remote get-url origin 2>/dev/null) || die "No 'origin' remote found."
+
+# Parse org/repo from SSH or HTTPS GitHub URLs
+#   git@github.com:Org/Repo.git
+#   https://github.com/Org/Repo.git
+if [[ "$REMOTE_URL" =~ github\.com[:/]([^/]+)/([^/.]+)(\.git)?$ ]]; then
+  ORG="${BASH_REMATCH[1]}"
+  REPO="${BASH_REMATCH[2]}"
+else
+  die "Could not parse org/repo from remote: ${REMOTE_URL}\nOnly GitHub remotes are supported."
 fi
 
-# Auto-detect current git branch if not specified
+VCS="gh"
+
+# ── Auto-detect branch ─────────────────────────────────────────────────────
+
+BRANCH="${1:-}"
+
 if [[ -z "$BRANCH" ]]; then
-  if git rev-parse --is-inside-work-tree &>/dev/null 2>&1; then
-    BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || true)
-    [[ -n "$BRANCH" ]] && info "Auto-detected branch: ${BOLD}${BRANCH}${RESET}"
-  fi
+  BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || true)
+  [[ -n "$BRANCH" ]] && info "Auto-detected branch: ${BOLD}${BRANCH}${RESET}"
 fi
 
-[[ -z "$BRANCH" ]] && info "No branch detected (detached HEAD or not in a git repo), fetching all branches."
+[[ -z "$BRANCH" ]] && die "Could not detect branch (detached HEAD?). Pass it as an argument: cci-logs [branch]"
+
+info "Project: ${BOLD}${ORG}/${REPO}${RESET} (branch: ${BOLD}${BRANCH}${RESET})"
 
 PROJECT_SLUG="${VCS}/${ORG}/${REPO}"
 BASE_V2="https://circleci.com/api/v2"
@@ -65,39 +77,38 @@ AUTH_HEADER="Circle-Token: ${CIRCLE_TOKEN}"
 api_v2() { curl -sf -H "$AUTH_HEADER" "$BASE_V2/$1"; }
 api_v1() { curl -sf -H "$AUTH_HEADER" "$BASE_V1/$1"; }
 
-# ── Step 1: Get recent pipelines ─────────────────────────────────────────────
+# ── Step 1: Get the latest pipeline ─────────────────────────────────────────
 
-info "Fetching recent pipelines for ${PROJECT_SLUG}..."
+info "Fetching latest pipeline..."
 
-PIPELINE_URL="project/${PROJECT_SLUG}/pipeline"
-[[ -n "$BRANCH" ]] && PIPELINE_URL+="?branch=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$BRANCH")"
+PIPELINE_URL="project/${PROJECT_SLUG}/pipeline?branch=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$BRANCH")"
 
 PIPELINES=$(api_v2 "$PIPELINE_URL") || die "Failed to fetch pipelines. Check your token and project slug."
 
-PIPELINE_IDS=$(echo "$PIPELINES" | jq -r '.items[:10] | .[].id')
-[[ -z "$PIPELINE_IDS" ]] && die "No pipelines found."
+PIPELINE_ID=$(echo "$PIPELINES" | jq -r '.items[0].id // empty')
+[[ -z "$PIPELINE_ID" ]] && die "No pipelines found for branch ${BRANCH}."
 
-# ── Step 2: Find failed workflows ────────────────────────────────────────────
+info "Latest pipeline: ${BOLD}${PIPELINE_ID}${RESET}"
 
-info "Scanning workflows for failures..."
+# ── Step 2: Find failed jobs in the latest pipeline ─────────────────────────
+
+info "Scanning for failures..."
 
 FAILED_JOBS=()
 
-while IFS= read -r PIPELINE_ID; do
-  WORKFLOWS=$(api_v2 "pipeline/${PIPELINE_ID}/workflow") || continue
+WORKFLOWS=$(api_v2 "pipeline/${PIPELINE_ID}/workflow") || die "Failed to fetch workflows."
 
-  while IFS= read -r WORKFLOW_ID; do
-    JOBS=$(api_v2 "workflow/${WORKFLOW_ID}/job") || continue
+while IFS= read -r WORKFLOW_ID; do
+  JOBS=$(api_v2 "workflow/${WORKFLOW_ID}/job") || continue
 
-    while IFS=\t' read -r JOB_NAME JOB_NUM JOB_STATUS; do
-      [[ "$JOB_STATUS" == "failed" ]] && FAILED_JOBS+=("${JOB_NUM}|${JOB_NAME}|${WORKFLOW_ID}")
-    done < <(echo "$JOBS" | jq -r '.items[] | [.name, (.job_number // "null"), .status] | @tsv')
+  while IFS=$'\t' read -r JOB_NAME JOB_NUM JOB_STATUS; do
+    [[ "$JOB_STATUS" == "failed" ]] && FAILED_JOBS+=("${JOB_NUM}|${JOB_NAME}|${WORKFLOW_ID}")
+  done < <(echo "$JOBS" | jq -r '.items[] | [.name, (.job_number // "null"), .status] | @tsv')
 
-  done < <(echo "$WORKFLOWS" | jq -r '.items[].id')
-done <<< "$PIPELINE_IDS"
+done < <(echo "$WORKFLOWS" | jq -r '.items[].id')
 
 if [[ ${#FAILED_JOBS[@]} -eq 0 ]]; then
-  echo -e "${YELLOW}No failed jobs found in the last 10 pipelines.${RESET}"
+  echo -e "${YELLOW}No failed jobs in the latest pipeline.${RESET}"
   exit 0
 fi
 
@@ -107,11 +118,9 @@ sep
 echo -e "${RED}${BOLD}Failed Jobs:${RESET}"
 sep
 
-declare -A JOB_MAP
 for i in "${!FAILED_JOBS[@]}"; do
   IFS='|' read -r JOB_NUM JOB_NAME _ <<< "${FAILED_JOBS[$i]}"
   echo -e "  ${BOLD}[$((i+1))]${RESET} ${JOB_NAME} (job #${JOB_NUM})"
-  JOB_MAP[$((i+1))]="$JOB_NUM|$JOB_NAME"
 done
 
 sep
@@ -132,7 +141,6 @@ fetch_logs() {
   JOB_DETAIL=$(api_v1 "project/${VCS}/${ORG}/${REPO}/${JOB_NUM}") \
     || { echo -e "${RED}Could not fetch job detail for #${JOB_NUM}${RESET}"; return; }
 
-  STEPS=$(echo "$JOB_DETAIL" | jq -r '.steps[]')
   STEP_COUNT=$(echo "$JOB_DETAIL" | jq '.steps | length')
 
   for ((s=0; s<STEP_COUNT; s++)); do
@@ -168,8 +176,8 @@ if [[ "$CHOICE" == "a" ]]; then
     IFS='|' read -r JOB_NUM JOB_NAME _ <<< "${FAILED_JOBS[$i]}"
     fetch_logs "$JOB_NUM" "$JOB_NAME"
   done
-elif [[ "$CHOICE" =~ ^[0-9]+$ ]] && [[ -n "${JOB_MAP[$CHOICE]:-}" ]]; then
-  IFS='|' read -r JOB_NUM JOB_NAME <<< "${JOB_MAP[$CHOICE]}"
+elif [[ "$CHOICE" =~ ^[0-9]+$ ]] && (( CHOICE >= 1 && CHOICE <= ${#FAILED_JOBS[@]} )); then
+  IFS='|' read -r JOB_NUM JOB_NAME _ <<< "${FAILED_JOBS[$((CHOICE-1))]}"
   fetch_logs "$JOB_NUM" "$JOB_NAME"
 else
   die "Invalid selection."
