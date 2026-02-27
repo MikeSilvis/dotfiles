@@ -6,10 +6,6 @@ map("n", "<Leader><Space>", ":noh<CR>", { desc = "Clear search highlight" })
 -- Git blame (updated from legacy :Gblame)
 map("n", "<leader>gb", ":Git blame<CR>", { desc = "Git blame" })
 
--- File explorer (Oil)
-map("n", "<C-n>", function()
-  require("oil").toggle_float()
-end, { desc = "Toggle file explorer" })
 
 -- Telescope
 map("n", "<C-p>", function()
