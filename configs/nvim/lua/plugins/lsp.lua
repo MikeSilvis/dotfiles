@@ -17,23 +17,16 @@ return {
           "kotlin_language_server",
           "lua_ls",
         },
+        automatic_enable = true,
       })
 
-      local lspconfig = require("lspconfig")
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-      -- Servers installed and managed by Mason
-      local servers = { "ruby_lsp", "ts_ls", "kotlin_language_server" }
-      for _, server in ipairs(servers) do
-        lspconfig[server].setup({ capabilities = capabilities })
-      end
-
-      -- sourcekit comes with Xcode, not Mason
-      lspconfig.sourcekit.setup({ capabilities = capabilities })
+      -- Apply capabilities to all servers
+      vim.lsp.config("*", { capabilities = capabilities })
 
       -- lua_ls with Neovim-aware settings
-      lspconfig.lua_ls.setup({
-        capabilities = capabilities,
+      vim.lsp.config("lua_ls", {
         settings = {
           Lua = {
             workspace = { checkThirdParty = false },
@@ -41,6 +34,9 @@ return {
           },
         },
       })
+
+      -- sourcekit comes with Xcode, not Mason
+      vim.lsp.enable("sourcekit")
     end,
   },
 }
