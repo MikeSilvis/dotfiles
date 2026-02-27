@@ -8,6 +8,15 @@ RSpec.describe DotfilesSync do
   let(:options) { { dry_run: true } }
   let(:sync) { described_class.new(options) }
 
+  def capture_stdout
+    original = $stdout
+    $stdout = StringIO.new
+    yield
+    $stdout.string
+  ensure
+    $stdout = original
+  end
+
   describe "#initialize" do
     it "sets default options" do
       sync = described_class.new
@@ -25,7 +34,7 @@ RSpec.describe DotfilesSync do
         backup_dir: "/custom/backup"
       }
       sync = described_class.new(custom_options)
-      
+
       expect(sync.dry_run).to be true
       expect(sync.verbose).to be true
       expect(sync.force).to be true
@@ -39,11 +48,75 @@ RSpec.describe DotfilesSync do
     end
 
     it "outputs welcome message" do
-      expect { sync.run }.to output(/Welcome to Mike's Dotfiles Sync!/).to_stdout
+      expect { sync.run }.to output(/Welcome to Mike's Personal Dotfiles Sync!/).to_stdout
     end
 
     it "outputs dry run mode message" do
       expect { sync.run }.to output(/Dry run mode: true/).to_stdout
+    end
+
+    it "outputs summary" do
+      expect { sync.run }.to output(/=== Summary ===/).to_stdout
+    end
+
+    it "outputs sync complete" do
+      expect { sync.run }.to output(/Sync complete\./).to_stdout
+    end
+
+    it "shows actions in summary when changes are detected" do
+      output = capture_stdout { sync.run }
+      expect(output).to match(/=== Summary ===/)
+      # On a real repo dry run, things like fonts/AI skills will be detected
+      expect(output).to match(/(Configured:|Everything already up to date)/)
+    end
+  end
+
+  describe "quiet vs verbose output" do
+    let(:tmpdir) { Dir.mktmpdir }
+    let(:home_dir) { Dir.mktmpdir }
+
+    before do
+      @original_home = ENV['HOME']
+      ENV['HOME'] = home_dir
+      # Create .oh-my-zsh so it thinks it's installed
+      FileUtils.mkdir_p(File.join(home_dir, ".oh-my-zsh"))
+    end
+
+    after do
+      ENV['HOME'] = @original_home
+      FileUtils.rm_rf(tmpdir)
+      FileUtils.rm_rf(home_dir)
+    end
+
+    it "hides 'already installed' messages in quiet mode" do
+      s = described_class.new(dry_run: true, dotfiles_dir: tmpdir)
+      output = capture_stdout { s.send(:check_and_install_oh_my_zsh) }
+      expect(output).not_to include("already installed")
+    end
+
+    it "shows 'already installed' messages in verbose mode" do
+      s = described_class.new(dry_run: true, verbose: true, dotfiles_dir: tmpdir)
+      output = capture_stdout { s.send(:check_and_install_oh_my_zsh) }
+      expect(output).to include("Oh My Zsh already installed")
+    end
+
+    it "hides section headers when nothing changed in quiet mode" do
+      s = described_class.new(dry_run: true, dotfiles_dir: tmpdir)
+      output = capture_stdout { s.send(:section, "Test Section") { s.send(:log_detail, "  detail") } }
+      expect(output).not_to include("[ Test Section ]")
+    end
+
+    it "shows section headers in verbose mode" do
+      s = described_class.new(dry_run: true, verbose: true, dotfiles_dir: tmpdir)
+      output = capture_stdout { s.send(:section, "Test Section") { s.send(:log_detail, "  detail") } }
+      expect(output).to include("[ Test Section ]")
+    end
+
+    it "always shows log_change messages with section header" do
+      s = described_class.new(dry_run: true, dotfiles_dir: tmpdir)
+      output = capture_stdout { s.send(:section, "Test Section") { s.send(:log_change, "Did something") } }
+      expect(output).to include("[ Test Section ]")
+      expect(output).to include("+ Did something")
     end
   end
 
@@ -78,9 +151,15 @@ RSpec.describe DotfilesSync do
 
       context "when config file is missing" do
         it "skips gracefully" do
-          s = described_class.new(dotfiles_dir: tmpdir)
+          s = described_class.new(dotfiles_dir: tmpdir, verbose: true)
           expect { s.send(:install_mcp_servers) }
             .to output(/No MCP server config found/).to_stdout
+        end
+
+        it "produces no output in quiet mode" do
+          s = described_class.new(dotfiles_dir: tmpdir)
+          expect { s.send(:install_mcp_servers) }
+            .not_to output(/No MCP server config found/).to_stdout
         end
       end
 
