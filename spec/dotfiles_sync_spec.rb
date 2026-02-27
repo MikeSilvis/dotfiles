@@ -106,47 +106,11 @@ RSpec.describe DotfilesSync do
           File.write(File.join(config_dir, "mcp-servers.json"), JSON.generate(config))
         end
 
-        it "resolves env vars in output" do
-          ENV['TEST_TOKEN'] = 'secret123'
-          s = described_class.new(dotfiles_dir: tmpdir)
-          s.send(:install_mcp_servers)
-
-          claude_settings = JSON.parse(File.read(File.join(home_dir, ".claude", "settings.json")))
-          expect(claude_settings['mcpServers']['test-server']['headers']['Authorization'])
-            .to eq('Bearer secret123')
-        ensure
-          ENV.delete('TEST_TOKEN')
-        end
-
         it "warns and leaves placeholder for missing env vars" do
           ENV.delete('TEST_TOKEN')
-          s = described_class.new(dotfiles_dir: tmpdir)
+          s = described_class.new(dotfiles_dir: tmpdir, dry_run: true)
           expect { s.send(:install_mcp_servers) }
             .to output(/Environment variable TEST_TOKEN not set/).to_stdout
-
-          claude_settings = JSON.parse(File.read(File.join(home_dir, ".claude", "settings.json")))
-          expect(claude_settings['mcpServers']['test-server']['headers']['Authorization'])
-            .to eq('Bearer ${TEST_TOKEN}')
-        end
-
-        it "merges into existing Claude settings.json preserving other keys" do
-          claude_dir = File.join(home_dir, ".claude")
-          FileUtils.mkdir_p(claude_dir)
-          File.write(File.join(claude_dir, "settings.json"), JSON.generate({
-            "model" => "opus",
-            "enabledPlugins" => { "some-plugin" => true }
-          }))
-
-          ENV['TEST_TOKEN'] = 'tok'
-          s = described_class.new(dotfiles_dir: tmpdir)
-          s.send(:install_mcp_servers)
-
-          claude_settings = JSON.parse(File.read(File.join(claude_dir, "settings.json")))
-          expect(claude_settings['model']).to eq('opus')
-          expect(claude_settings['enabledPlugins']).to eq({ "some-plugin" => true })
-          expect(claude_settings['mcpServers']).to be_a(Hash)
-        ensure
-          ENV.delete('TEST_TOKEN')
         end
 
         it "writes full replacement to Cursor mcp.json" do
@@ -161,11 +125,10 @@ RSpec.describe DotfilesSync do
           ENV.delete('TEST_TOKEN')
         end
 
-        it "writes nothing in dry run mode" do
+        it "does not write Cursor mcp.json in dry run mode" do
           s = described_class.new(dotfiles_dir: tmpdir, dry_run: true)
           s.send(:install_mcp_servers)
 
-          expect(File.exist?(File.join(home_dir, ".claude", "settings.json"))).to be false
           expect(File.exist?(File.join(home_dir, ".cursor", "mcp.json"))).to be false
         end
 
@@ -176,8 +139,8 @@ RSpec.describe DotfilesSync do
           ENV['TEST_TOKEN'] = 'tok'
           s.send(:install_mcp_servers)
 
-          claude_settings = JSON.parse(File.read(File.join(home_dir, ".claude", "settings.json")))
-          resolved_command = claude_settings['mcpServers']['npx-server']['command']
+          cursor_mcp = JSON.parse(File.read(File.join(home_dir, ".cursor", "mcp.json")))
+          resolved_command = cursor_mcp['mcpServers']['npx-server']['command']
 
           if npx_path.empty?
             expect(resolved_command).to eq('${NPX_PATH}')
@@ -187,6 +150,104 @@ RSpec.describe DotfilesSync do
         ensure
           ENV.delete('TEST_TOKEN')
         end
+      end
+    end
+
+    describe "#claude_mcp_add_args" do
+      let(:sync) { described_class.new }
+
+      it "builds args for a URL-based server with headers" do
+        server = {
+          "url" => "https://example.com/mcp",
+          "headers" => { "Authorization" => "Bearer token123" }
+        }
+        args = sync.send(:claude_mcp_add_args, "my-server", server)
+        expect(args).to eq([
+          "claude", "mcp", "add", "-s", "user", "-t", "http",
+          "my-server", "https://example.com/mcp",
+          "-H", "Authorization: Bearer token123"
+        ])
+      end
+
+      it "builds args for a URL-based server without headers" do
+        server = { "url" => "https://example.com/mcp", "headers" => {} }
+        args = sync.send(:claude_mcp_add_args, "my-server", server)
+        expect(args).to eq(%w[claude mcp add -s user -t http my-server https://example.com/mcp])
+      end
+
+      it "builds args for a command-based server with env and args" do
+        server = {
+          "command" => "/usr/bin/npx",
+          "args" => ["-y", "some-package"],
+          "env" => { "API_KEY" => "secret" }
+        }
+        args = sync.send(:claude_mcp_add_args, "my-server", server)
+        expect(args).to eq(%w[
+          claude mcp add -s user
+          my-server
+          -e API_KEY=secret
+          -- /usr/bin/npx -y some-package
+        ])
+      end
+
+      it "builds args for a command-based server without env" do
+        server = { "command" => "docker", "args" => %w[mcp gateway run] }
+        args = sync.send(:claude_mcp_add_args, "docker-mcp", server)
+        expect(args).to eq(%w[claude mcp add -s user docker-mcp -- docker mcp gateway run])
+      end
+
+      it "returns nil for unknown server types" do
+        args = sync.send(:claude_mcp_add_args, "bad", { "something" => "else" })
+        expect(args).to be_nil
+      end
+
+      it "skips headers with empty values" do
+        server = { "url" => "https://example.com", "headers" => { "X-Key" => "" } }
+        args = sync.send(:claude_mcp_add_args, "my-server", server)
+        expect(args).to eq(%w[claude mcp add -s user -t http my-server https://example.com])
+      end
+    end
+
+    describe "#clean_claude_settings_mcp_servers" do
+      let(:home_dir) { Dir.mktmpdir }
+
+      before do
+        @original_home = ENV['HOME']
+        ENV['HOME'] = home_dir
+      end
+
+      after do
+        ENV['HOME'] = @original_home
+        FileUtils.rm_rf(home_dir)
+      end
+
+      it "removes mcpServers key from settings.json preserving other keys" do
+        claude_dir = File.join(home_dir, ".claude")
+        FileUtils.mkdir_p(claude_dir)
+        File.write(File.join(claude_dir, "settings.json"), JSON.generate({
+          "model" => "opus",
+          "enabledPlugins" => { "some-plugin" => true },
+          "mcpServers" => { "old-server" => { "url" => "https://example.com" } }
+        }))
+
+        s = described_class.new
+        s.send(:clean_claude_settings_mcp_servers)
+
+        settings = JSON.parse(File.read(File.join(claude_dir, "settings.json")))
+        expect(settings['model']).to eq('opus')
+        expect(settings['enabledPlugins']).to eq({ "some-plugin" => true })
+        expect(settings).not_to have_key('mcpServers')
+      end
+
+      it "does nothing when settings.json has no mcpServers" do
+        claude_dir = File.join(home_dir, ".claude")
+        FileUtils.mkdir_p(claude_dir)
+        original = { "model" => "opus" }
+        File.write(File.join(claude_dir, "settings.json"), JSON.generate(original))
+
+        s = described_class.new
+        expect { s.send(:clean_claude_settings_mcp_servers) }
+          .not_to(change { File.read(File.join(claude_dir, "settings.json")) })
       end
     end
   end

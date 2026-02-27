@@ -814,23 +814,72 @@ class DotfilesSync
   end
 
   def install_mcp_servers_claude(resolved)
-    claude_settings_path = "#{Dir.home}/.claude/settings.json"
-    claude_dir = File.dirname(claude_settings_path)
-
-    existing = if File.exist?(claude_settings_path)
-                 JSON.parse(File.read(claude_settings_path))
-               else
-                 {}
-               end
-
-    existing['mcpServers'] = resolved
-
-    unless @dry_run
-      FileUtils.mkdir_p(claude_dir)
-      File.write(claude_settings_path, "#{JSON.pretty_generate(existing)}\n")
+    unless system('which claude > /dev/null 2>&1')
+      puts '  ⚠️  claude CLI not found, skipping Claude Code MCP setup'
+      return
     end
 
-    puts "  ✅ Claude Code: #{claude_settings_path}"
+    resolved.each do |name, server|
+      cmd = claude_mcp_add_args(name, server)
+      unless cmd
+        puts "  ⚠️  #{name}: unknown server type, skipping"
+        next
+      end
+
+      unless @dry_run
+        _stdout, stderr, status = Open3.capture3(*cmd)
+        if status.success?
+          puts "  ✅ Claude Code: #{name}"
+        else
+          puts "  ⚠️  Claude Code: #{name} — #{stderr.strip}"
+        end
+      else
+        puts "  ✅ Claude Code: #{name} (dry run)"
+      end
+    end
+
+    clean_claude_settings_mcp_servers
+  end
+
+  def claude_mcp_add_args(name, server)
+    args = %w[claude mcp add -s user]
+
+    if server.key?('url')
+      args += ['-t', 'http', name, server['url']]
+      if server['headers'].is_a?(Hash)
+        server['headers'].each do |key, value|
+          next if value.to_s.empty?
+          args += ['-H', "#{key}: #{value}"]
+        end
+      end
+    elsif server.key?('command')
+      args << name
+      if server['env'].is_a?(Hash)
+        server['env'].each do |key, value|
+          args += ['-e', "#{key}=#{value}"]
+        end
+      end
+      args += ['--', server['command']]
+      args += server['args'] if server['args'].is_a?(Array)
+    else
+      return nil
+    end
+
+    args
+  end
+
+  def clean_claude_settings_mcp_servers
+    claude_settings_path = "#{Dir.home}/.claude/settings.json"
+    return unless File.exist?(claude_settings_path)
+
+    settings = JSON.parse(File.read(claude_settings_path))
+    return unless settings.key?('mcpServers')
+
+    settings.delete('mcpServers')
+    unless @dry_run
+      File.write(claude_settings_path, "#{JSON.pretty_generate(settings)}\n")
+    end
+    puts '  🧹 Removed legacy mcpServers from settings.json'
   end
 
   def install_mcp_servers_cursor(resolved)
