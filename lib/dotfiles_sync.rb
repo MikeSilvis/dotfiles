@@ -731,11 +731,12 @@ class DotfilesSync
         # Strip YAML frontmatter for the body
         body = content.sub(/\A---\n.*?\n---\n*/m, '')
 
-        # Claude Code: ~/.claude/commands/<name>.md → /name
+        # Claude Code: ~/.claude/commands/msilvis:name.md → /msilvis:name
+        prefixed_name = "msilvis:#{name}"
         unless @dry_run
-          File.write("#{claude_commands_dir}/#{name}.md", body)
+          File.write("#{claude_commands_dir}/#{prefixed_name}.md", body)
         end
-        puts "  ✅ Claude Code: /#{name}"
+        puts "  ✅ Claude Code: /#{prefixed_name}"
 
         # Cursor: ~/.cursor/rules/<name>.mdc (on-demand)
         cursor_frontmatter = "---\ndescription: #{description}\nglobs: \nalwaysApply: false\n---\n\n"
