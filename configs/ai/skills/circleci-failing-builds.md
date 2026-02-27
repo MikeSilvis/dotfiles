@@ -9,20 +9,16 @@ description: Diagnose and fix failing CircleCI builds using the `cci-logs` shell
 
 When helping with a failing CircleCI build, follow this workflow:
 
-1. **Gather context**
-   - Determine the repository, org, and VCS type (usually `gh` for GitHub).
-   - If the user doesn't specify a branch, the tool auto-detects the current git branch.
-
-2. **Fetch failure logs with `cci-logs`**
-   - Run the helper: `cci-logs <vcs-type> <org> <repo> [branch]`
-     - Example: `cci-logs gh myorg myrepo feature-branch`
+1. **Fetch failure logs with `cci-logs`**
+   - Run the helper with no arguments: `cci-logs`
+   - The script auto-detects the org, repo, and VCS type from the git remote, and defaults to the current git branch. You can optionally pass a branch name (`cci-logs [branch]`) but it is not required.
    - The script requires:
      - A CircleCI token — either `CIRCLE_TOKEN` env var or configured via `circleci setup` (stored in `~/.circleci/cli.yml`).
      - `jq` installed (`brew install jq`).
-   - The script fetches the last 10 pipelines, finds failed jobs, and displays step-level logs for failed steps only.
+   - The script fetches the latest pipeline, finds failed jobs, and displays step-level logs for failed steps only.
    - **Note**: The script is interactive (prompts to select a failed job). When running non-interactively, pipe input or use it to understand which jobs failed, then fetch logs via the CircleCI API directly.
 
-3. **Analyze the failure**
+2. **Analyze the failure**
    - Read the failed step logs carefully. Common failure categories:
      - **Test failures**: Look for assertion errors, stack traces, and the specific test file/line.
      - **Lint / typecheck errors**: Look for file paths and error codes.
@@ -31,13 +27,13 @@ When helping with a failing CircleCI build, follow this workflow:
      - **Timeout / infrastructure failures**: Resource limits, flaky network calls.
    - Identify the **root cause** — not just the symptom. A test failure might be caused by a missing migration, a dependency change, or a race condition.
 
-4. **Fix the issue locally**
+3. **Fix the issue locally**
    - Locate the relevant file(s) in the local workspace.
    - Apply the minimal fix that addresses the root cause.
    - Follow existing project conventions and patterns.
    - If the fix requires configuration changes (e.g., `.circleci/config.yml`), be careful to preserve existing job structure and only change what's necessary.
 
-5. **Validate locally before pushing**
+4. **Validate locally before pushing**
    - Run the same command that failed in CI locally if possible (e.g., `bundle exec rspec`, `npm test`, `make lint`).
    - If the CI step uses a custom script or Docker image, try to approximate the check locally.
    - Only push once the local validation passes.
