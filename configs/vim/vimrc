@@ -1,52 +1,11 @@
 set nocompatible
-filetype off
-
-" --- Plugin managers (only run if installed) ---
-if exists('*pathogen#infect')
-  execute pathogen#infect()
-endif
-
-if filereadable(expand('~/.vim/bundle/Vundle.vim/autoload/vundle.vim'))
-  set rtp+=~/.vim/bundle/Vundle.vim
-  call vundle#begin()
-  Plugin 'VundleVim/Vundle.vim'
-  Plugin 'ervandew/supertab'
-  Plugin 'tpope/vim-rails.git'
-  Plugin 'airblade/vim-gitgutter'
-  Plugin 'elzr/vim-json'
-  Plugin 'leafgarland/typescript-vim'
-  Plugin 'craigemery/vim-autotag'
-  Plugin 'scrooloose/nerdcommenter'
-  Plugin 'tpope/vim-fugitive'
-  Plugin 'udalov/kotlin-vim'
-  Plugin 'mileszs/ack.vim'
-  Plugin 'keith/swift.vim'
-  Plugin 'dense-analysis/ale'
-  call vundle#end()
-endif
-
 filetype plugin indent on
 syntax on
 
-" --- Colors (use smyck if present) ---
-silent! colorscheme smyck
+set nowrap number mouse=a clipboard=unnamed
+set hlsearch tabstop=2 shiftwidth=2 expandtab
+set cursorline colorcolumn=100
 
-" --- Key mappings ---
-map <C-n> :NERDTreeToggle<CR>
-map <C-j> :NERDTreeFind<CR>
-map <leader>gb :Gblame<CR>
 nmap <Leader><Space> :noh<Enter>
-
-" --- Options ---
-set wrap!
-set number
-set mouse=a
-set clipboard=unnamed
-set hlsearch
-set tabstop=2
-set shiftwidth=2
-set expandtab
-set cursorline
-set colorcolumn=100
 
 autocmd BufNewFile,BufRead Podfile,*.podspec set filetype=ruby

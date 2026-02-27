@@ -74,7 +74,7 @@ class DotfilesSync
     begin
       install_system_dependencies
       copy_personal_dotfiles
-      install_vim_config
+      install_neovim_config
       install_fonts_and_themes
       install_iterm2_config
       install_ghostty_config
@@ -113,6 +113,7 @@ class DotfilesSync
     check_and_install_docker
     check_and_install_ghostty
     check_and_install_jq
+    check_and_install_neovim_deps
     install_mise_config
     setup_touch_id_sudo
   end
@@ -322,6 +323,19 @@ class DotfilesSync
     end
   end
 
+  def check_and_install_neovim_deps
+    puts "📝 Checking Neovim and dependencies..."
+
+    { "nvim" => "neovim", "fzf" => "fzf", "rg" => "ripgrep", "fd" => "fd" }.each do |bin, formula|
+      if system("which #{bin} > /dev/null 2>&1")
+        puts "✅ #{formula} already installed"
+      else
+        puts "📦 Installing #{formula} via Homebrew..."
+        run_command("brew install #{formula}", "Installing #{formula}")
+      end
+    end
+  end
+
   def check_and_install_ghostty
     puts "👻 Checking Ghostty installation..."
 
@@ -352,14 +366,13 @@ class DotfilesSync
 
     # Files only copied on personal machines (config_files owns these on work machines)
     personal_only = {
-      './configs/.ackrc' => "#{ENV['HOME']}/.ackrc",
       './configs/.inputrc' => "#{ENV['HOME']}/.inputrc",
       './configs/git/.gitconfig_personal' => "#{ENV['HOME']}/.gitconfig"
     }
 
     dotfiles_to_copy = always_copy
     if work_mode?
-      puts "⏭️  Skipping .ackrc, .inputrc, .gitconfig (config_files owns these on work machines)"
+      puts "⏭️  Skipping .inputrc, .gitconfig (config_files owns these on work machines)"
     else
       dotfiles_to_copy = dotfiles_to_copy.merge(personal_only)
     end
@@ -395,55 +408,39 @@ class DotfilesSync
     create_personal_zshrc
   end
 
-  def install_vim_config
-    puts "📝 Installing Vim configuration (colors, etc.)..."
+  def install_neovim_config
+    puts "📝 Installing Neovim configuration..."
 
-    vim_source = "#{@dotfiles_dir}/configs/vim/vim"
-    vim_target_dir = "#{ENV['HOME']}/.vim"
-    vundle_path = "#{vim_target_dir}/bundle/Vundle.vim"
+    nvim_source = "#{@dotfiles_dir}/configs/nvim"
+    nvim_target = "#{ENV['HOME']}/.config/nvim"
 
-    if Dir.exist?(vim_source)
-      unless @dry_run
-        FileUtils.mkdir_p(vim_target_dir)
-      end
-
-      Dir.glob("#{vim_source}/**/*").each do |path|
-        next if File.directory?(path)
-
-        relative = path.sub(%r{\A#{Regexp.escape(vim_source)}/}, "")
-        target = "#{vim_target_dir}/#{relative}"
-
-        if File.exist?(target) && !@dry_run
-          puts "  ⏭️  #{relative} already exists, skipping..."
-          next
-        end
-
-        puts "  📄 #{relative}"
-        unless @dry_run
-          FileUtils.mkdir_p(File.dirname(target))
-          FileUtils.cp(path, target)
-        end
-      end
+    unless Dir.exist?(nvim_source)
+      puts "⚠️  Neovim config not found at #{nvim_source}"
+      return
     end
 
-    # Install Vundle if not present
-    unless Dir.exist?(vundle_path)
-      puts "  📦 Installing Vundle..."
-      unless @dry_run
-        FileUtils.mkdir_p(File.dirname(vundle_path))
-        run_command("git clone https://github.com/VundleVim/Vundle.vim.git #{vundle_path}", "Clone Vundle")
+    unless @dry_run
+      FileUtils.mkdir_p(File.dirname(nvim_target))
+      # Remove existing symlink or directory to ensure clean state
+      if File.symlink?(nvim_target)
+        File.delete(nvim_target)
+      elsif Dir.exist?(nvim_target)
+        puts "💾 Backing up existing nvim config..."
+        FileUtils.mkdir_p(@backup_dir)
+        FileUtils.mv(nvim_target, "#{@backup_dir}/nvim")
       end
-    else
-      puts "  ✅ Vundle already installed"
+      FileUtils.ln_sf(File.expand_path(nvim_source), nvim_target)
     end
 
-    # Install plugins via Vundle (only if vim is available and we have Vundle)
-    if Dir.exist?(vundle_path) && system("which vim > /dev/null 2>&1") && !@dry_run
-      puts "  🔌 Installing Vim plugins (PluginInstall)..."
-      system("vim -c PluginInstall -c qa")
-      puts "✅ Vim config and plugins installed."
+    puts "  🔗 Symlinked #{nvim_target} -> #{nvim_source}"
+
+    # Install plugins via lazy.nvim (headless)
+    if system("which nvim > /dev/null 2>&1") && !@dry_run
+      puts "  🔌 Installing Neovim plugins (Lazy sync)..."
+      system('nvim --headless "+Lazy! sync" +qa')
+      puts "✅ Neovim config and plugins installed."
     else
-      puts "✅ Vim config installed."
+      puts "✅ Neovim config symlinked (run nvim to install plugins)."
     end
   end
 
