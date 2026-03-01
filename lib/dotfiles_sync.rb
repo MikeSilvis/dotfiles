@@ -28,6 +28,11 @@ class DotfilesSync
     section("Simulator Cleanup") { cleanup_simulators }
   end
 
+  # Standalone entry point for bin/cleanup-space (all pruning: Homebrew, Xcode, simulators, Docker)
+  def cleanup_disk
+    section("Disk Cleanup") { cleanup_disk_space }
+  end
+
   def run
     log "Welcome to Mike's Personal Dotfiles Sync!"
     log "Backup directory: #{@backup_dir}" unless @dry_run
@@ -554,7 +559,15 @@ class DotfilesSync
   def cleanup_disk_space
     cleanup_homebrew
     cleanup_xcode_derived_data
+    cleanup_xcode_archives
     cleanup_simulators
+    cleanup_docker
+    cleanup_npm_cache
+    cleanup_cocoapods_cache
+    cleanup_gem
+    cleanup_mise
+    cleanup_iterm_cache
+    cleanup_ghostty_cache
   end
 
   def cleanup_homebrew
@@ -580,6 +593,18 @@ class DotfilesSync
       FileUtils.rm_rf(derived_data)
     end
     @actions[:configured] << "Xcode DerivedData"
+  end
+
+  def cleanup_xcode_archives
+    archives = "#{ENV['HOME']}/Library/Developer/Xcode/Archives"
+    return unless Dir.exist?(archives)
+
+    size = `du -sh "#{archives}" 2>/dev/null`.strip.split("\t").first
+    log_change "Removing Xcode Archives (#{size})"
+    unless @dry_run
+      FileUtils.rm_rf(archives)
+    end
+    @actions[:configured] << "Xcode Archives"
   end
 
   def cleanup_simulators
@@ -619,6 +644,101 @@ class DotfilesSync
       to_delete.each { |udid| system("xcrun simctl delete #{udid}") }
     end
     @actions[:configured] << "iOS Simulators"
+  end
+
+  def cleanup_docker
+    unless system("which docker > /dev/null 2>&1")
+      log_detail "  Skipping Docker cleanup (docker not found)"
+      return
+    end
+
+    log_change "Running docker system prune -a -f"
+    unless @dry_run
+      run_command("docker system prune -a -f", "Docker system prune")
+    end
+    @actions[:configured] << "Docker"
+  end
+
+  def cleanup_npm_cache
+    unless system("which npm > /dev/null 2>&1")
+      log_detail "  Skipping npm cache cleanup (npm not found)"
+      return
+    end
+
+    log_change "Cleaning npm cache"
+    unless @dry_run
+      run_command("npm cache clean --force", "npm cache clean")
+    end
+    @actions[:configured] << "npm cache"
+  end
+
+  def cleanup_cocoapods_cache
+    unless system("which pod > /dev/null 2>&1")
+      log_detail "  Skipping CocoaPods cache cleanup (pod not found)"
+      return
+    end
+
+    log_change "Cleaning CocoaPods cache"
+    unless @dry_run
+      run_command("pod cache clean --all", "CocoaPods cache clean")
+    end
+    @actions[:configured] << "CocoaPods cache"
+  end
+
+  def cleanup_gem
+    unless system("which gem > /dev/null 2>&1")
+      log_detail "  Skipping gem cleanup (gem not found)"
+      return
+    end
+
+    log_change "Cleaning old gem versions"
+    unless @dry_run
+      run_command("gem cleanup", "gem cleanup")
+    end
+    @actions[:configured] << "Ruby gems"
+  end
+
+  def cleanup_mise
+    unless system("which mise > /dev/null 2>&1")
+      log_detail "  Skipping mise prune (mise not found)"
+      return
+    end
+
+    log_change "Pruning unused mise runtimes and versions"
+    unless @dry_run
+      run_command("mise prune -y", "mise prune")
+    end
+    @actions[:configured] << "mise"
+  end
+
+  def cleanup_iterm_cache
+    iterm_cache = "#{ENV['HOME']}/Library/Caches/com.googlecode.iterm2"
+    return unless Dir.exist?(iterm_cache)
+
+    size = `du -sh "#{iterm_cache}" 2>/dev/null`.strip.split("\t").first
+    log_change "Clearing iTerm2 cache (#{size})"
+    unless @dry_run
+      FileUtils.rm_rf(iterm_cache)
+    end
+    @actions[:configured] << "iTerm2 cache"
+  end
+
+  def cleanup_ghostty_cache
+    ghostty_cache = "#{ENV['HOME']}/Library/Caches/com.mitchellh.ghostty"
+    ghostty_state = "#{ENV['HOME']}/.local/state/ghostty"
+    return unless Dir.exist?(ghostty_cache) || Dir.exist?(ghostty_state)
+
+    to_remove = []
+    to_remove << ghostty_cache if Dir.exist?(ghostty_cache)
+    to_remove << ghostty_state if Dir.exist?(ghostty_state)
+
+    to_remove.each do |dir|
+      size = `du -sh "#{dir}" 2>/dev/null`.strip.split("\t").first
+      name = dir.include?("Library/Caches") ? "Ghostty cache" : "Ghostty state (ssh-cache)"
+      log_change "Clearing #{name} (#{size})"
+      FileUtils.rm_rf(dir) unless @dry_run
+    end
+    @actions[:configured] << "Ghostty cache" if to_remove.any?
   end
 
   def install_iterm2_config

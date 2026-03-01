@@ -21,7 +21,16 @@ function cleanup-sims() {
     "$DOTFILES_DIR/bin/cleanup-sims" "$@"
 }
 
+function cleanup-space() {
+    if [[ -z "$DOTFILES_DIR" ]]; then
+        echo "DOTFILES_DIR not set -- is your zshrc configured?"
+        return 1
+    fi
+    "$DOTFILES_DIR/bin/cleanup-space" "$@"
+}
+
 alias cleanup-sims-dry='cleanup-sims --dry-run'
+alias cleanup-space-dry='cleanup-space --dry-run'
 
 alias sync-dry='sync --dry-run'
 alias sync-verbose='sync --verbose'
