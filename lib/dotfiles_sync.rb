@@ -1040,7 +1040,36 @@ class DotfilesSync
       end
     end
 
+    apply_claude_mcp_disabled_flags(resolved)
     clean_claude_settings_mcp_servers
+  end
+
+  def apply_claude_mcp_disabled_flags(resolved)
+    claude_json_path = "#{Dir.home}/.claude.json"
+    return unless File.exist?(claude_json_path)
+
+    data = JSON.parse(File.read(claude_json_path))
+    servers = data['mcpServers']
+    return unless servers.is_a?(Hash)
+
+    changed = false
+    resolved.each do |name, server|
+      next unless servers.key?(name)
+
+      disabled = server['disabled'] == true
+      if disabled && servers[name]['disabled'] != true
+        servers[name]['disabled'] = true
+        changed = true
+      elsif !disabled && servers[name].key?('disabled')
+        servers[name].delete('disabled')
+        changed = true
+      end
+    end
+
+    if changed && !@dry_run
+      File.write(claude_json_path, "#{JSON.pretty_generate(data)}\n")
+      log_detail "  Applied disabled flags to ~/.claude.json"
+    end
   end
 
   def claude_mcp_add_args(name, server)

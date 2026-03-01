@@ -1,24 +1,29 @@
 {
   "mcpServers": {
     "render": {
+      "disabled": true,
       "url": "https://mcp.render.com/mcp",
       "headers": {
         "Authorization": "Bearer ${RENDER_MCP_TOKEN}"
       }
     },
     "MCP_DOCKER": {
+      "disabled": true,
       "command": "docker",
       "args": ["mcp", "gateway", "run"]
     },
     "Figma": {
+      "disabled": true,
       "url": "https://mcp.figma.com/mcp",
       "headers": {}
     },
     "Signoz": {
+      "disabled": true,
       "url": "https://signoz-mcp.sillyhub.dev",
       "headers": {}
     },
     "coolify": {
+      "disabled": true,
       "command": "${NPX_PATH}",
       "args": ["-y", "@masonator/coolify-mcp"],
       "env": {
@@ -28,6 +33,7 @@
       }
     },
     "google-drive": {
+      "disabled": true,
       "command": "${NPX_PATH}",
       "args": ["-y", "@piotr-agier/google-drive-mcp"],
       "env": {
