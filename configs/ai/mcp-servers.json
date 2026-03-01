@@ -1,12 +1,5 @@
 {
   "mcpServers": {
-    "render": {
-      "disabled": true,
-      "url": "https://mcp.render.com/mcp",
-      "headers": {
-        "Authorization": "Bearer ${RENDER_MCP_TOKEN}"
-      }
-    },
     "MCP_DOCKER": {
       "disabled": true,
       "command": "docker",
@@ -21,16 +14,6 @@
       "disabled": true,
       "url": "https://signoz-mcp.sillyhub.dev",
       "headers": {}
-    },
-    "coolify": {
-      "disabled": true,
-      "command": "${NPX_PATH}",
-      "args": ["-y", "@masonator/coolify-mcp"],
-      "env": {
-        "PATH": "${NODE_BIN_DIR}:/usr/local/bin:/usr/bin:/bin",
-        "COOLIFY_ACCESS_TOKEN": "${COOLIFY_ACCESS_TOKEN}",
-        "COOLIFY_BASE_URL": "https://sillyhub.dev"
-      }
     },
     "google-drive": {
       "disabled": true,
