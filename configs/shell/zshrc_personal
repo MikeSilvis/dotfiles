@@ -10,7 +10,9 @@ typeset -U path PATH
 
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
 
-if [ $(ulimit -n) -lt 8192 ]; then ulimit -n 8192; fi
+_cur_ulimit=$(ulimit -n)
+if [[ "$_cur_ulimit" != "unlimited" ]] && (( _cur_ulimit < 8192 )); then ulimit -n 8192; fi
+unset _cur_ulimit
 
 # --- PATH helpers ---
 function append_to_path  { [[ -d "$1" ]] && path+=$1; }
