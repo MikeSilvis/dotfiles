@@ -40,3 +40,6 @@ command -v mise &>/dev/null && eval "$(mise activate zsh)"
 
 # --- fzf (fuzzy finder shell integration) ---
 source <(fzf --zsh)
+
+# --- Aliases ---
+alias pr='pnpm run $(jq -r ".scripts | keys[]" package.json | fzf)'
