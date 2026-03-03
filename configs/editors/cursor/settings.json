@@ -22,8 +22,8 @@
         "plaintext": false,
         "scminput": false
     },
-    "kotlin.debugAdapter.enabled": false,
-    "kotlin.languageServer.enabled": false,
+    "kotlin.debugAdapter.enabled": true,
+    "kotlin.languageServer.enabled": true,
     "liveshare.anonymousGuestApproval": "reject",
     "liveshare.guestApprovalRequired": true,
     "liveshare.shareExternalFiles": false,
