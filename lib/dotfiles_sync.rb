@@ -6,6 +6,7 @@ require 'optparse'
 require 'time'
 require 'json'
 require 'open3'
+require 'digest'
 
 # Main DotfilesSync class that handles all synchronization operations
 class DotfilesSync
@@ -119,6 +120,7 @@ class DotfilesSync
       log_detail "  Skipping Homebrew/Zsh install (topsoil handles these on work machines)"
     else
       check_and_install_homebrew
+      upgrade_homebrew_packages
       check_and_install_zsh
       check_and_install_mise
     end
@@ -147,6 +149,18 @@ class DotfilesSync
     else
       log_detail "  Homebrew already installed"
     end
+  end
+
+  def upgrade_homebrew_packages
+    unless system("which brew > /dev/null 2>&1")
+      log_detail "  Skipping Homebrew upgrade (not installed)"
+      return
+    end
+
+    log_change "Updating and upgrading Homebrew packages"
+    run_command("brew update", "Updating Homebrew")
+    run_command("brew upgrade", "Upgrading outdated packages")
+    @actions[:configured] << "Homebrew packages upgraded"
   end
 
   def check_and_install_zsh
@@ -778,14 +792,64 @@ class DotfilesSync
 
     if File.symlink?(ghostty_target) && File.readlink(ghostty_target) == File.expand_path(ghostty_source)
       log_detail "  Ghostty config already symlinked"
-      return
+    else
+      log_change "Symlinked Ghostty config"
+      @actions[:configured] << "Ghostty config"
+      unless @dry_run
+        FileUtils.mkdir_p(ghostty_config_dir)
+        FileUtils.ln_sf(File.expand_path(ghostty_source), ghostty_target)
+      end
     end
 
-    log_change "Symlinked Ghostty config"
-    @actions[:configured] << "Ghostty config"
-    unless @dry_run
-      FileUtils.mkdir_p(ghostty_config_dir)
-      FileUtils.ln_sf(File.expand_path(ghostty_source), ghostty_target)
+    apply_ghostty_icon
+  end
+
+  def apply_ghostty_icon
+    ghostty_app = "/Applications/Ghostty.app"
+    return unless Dir.exist?(ghostty_app)
+
+    ghostsmith = `which ghostsmith 2>/dev/null`.strip
+    ghostsmith = nil if ghostsmith.empty?
+    icon_source = "./configs/ghostty/icon.png"
+
+    # Prefer ghostsmith CLI to generate the icon fresh; fall back to static PNG
+    if ghostsmith
+      hash_key = "ghostsmith:plastic:white:black,RoyalBlue"
+      hash_file = "#{ENV['HOME']}/.config/ghostty/.icon_hash"
+      if File.exist?(hash_file) && File.read(hash_file).strip == hash_key
+        log_detail "  Ghostty custom icon already applied"
+        return
+      end
+
+      log_change "Applied custom Ghostty app icon via ghostsmith"
+      @actions[:configured] << "Ghostty app icon"
+      unless @dry_run
+        system(ghostsmith, "--frame", "plastic", "--ghost-color", "white",
+               "--screen-color", "black,RoyalBlue", "--apply", ghostty_app)
+        FileUtils.mkdir_p(File.dirname(hash_file))
+        File.write(hash_file, hash_key)
+      end
+    elsif File.exist?(icon_source)
+      icon_path = File.expand_path(icon_source)
+      hash_file = "#{ENV['HOME']}/.config/ghostty/.icon_hash"
+      current_hash = Digest::MD5.file(icon_path).hexdigest rescue nil
+      if current_hash && File.exist?(hash_file) && File.read(hash_file).strip == current_hash
+        log_detail "  Ghostty custom icon already applied"
+        return
+      end
+
+      log_change "Applied custom Ghostty app icon from PNG"
+      @actions[:configured] << "Ghostty app icon"
+      unless @dry_run
+        applescript = <<~APPLESCRIPT
+          use framework "AppKit"
+          set iconImage to current application's NSImage's alloc()'s initWithContentsOfFile:"#{icon_path}"
+          current application's NSWorkspace's sharedWorkspace()'s setIcon:iconImage forFile:"#{ghostty_app}" options:0
+        APPLESCRIPT
+        system("osascript", "-e", applescript)
+        FileUtils.mkdir_p(File.dirname(hash_file))
+        File.write(hash_file, current_hash)
+      end
     end
   end
 
