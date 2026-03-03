@@ -7,7 +7,9 @@ return {
     },
     cmd = "Neotree",
     keys = {
-      { "<C-n>", "<cmd>Neotree toggle<cr>", desc = "File Explorer" },
+      { "<C-b>", "<cmd>Neotree toggle<cr>", desc = "Toggle File Explorer" },
+      { "<C-0>", "<cmd>Neotree toggle<cr>", desc = "Toggle File Explorer" },
+      { "<C-S-j>", "<cmd>Neotree reveal<cr>", desc = "Reveal File in Explorer" },
     },
     opts = {
       filesystem = {
