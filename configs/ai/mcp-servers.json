@@ -1,22 +1,18 @@
 {
   "mcpServers": {
     "MCP_DOCKER": {
-      "disabled": true,
       "command": "docker",
       "args": ["mcp", "gateway", "run"]
     },
     "Figma": {
-      "disabled": true,
       "url": "https://mcp.figma.com/mcp",
       "headers": {}
     },
     "Signoz": {
-      "disabled": true,
       "url": "https://signoz-mcp.sillyhub.dev",
       "headers": {}
     },
     "google-drive": {
-      "disabled": true,
       "command": "${NPX_PATH}",
       "args": ["-y", "@piotr-agier/google-drive-mcp"],
       "env": {

@@ -183,6 +183,7 @@ RSpec.describe DotfilesSync do
           config_dir = File.join(tmpdir, "configs", "ai")
           FileUtils.mkdir_p(config_dir)
           File.write(File.join(config_dir, "mcp-servers.json"), JSON.generate(config))
+          File.write(File.join(config_dir, "mcp-servers-enabled.json"), JSON.generate(%w[test-server npx-server]))
         end
 
         it "warns and leaves placeholder for missing env vars" do
@@ -202,6 +203,32 @@ RSpec.describe DotfilesSync do
           expect(cursor_mcp['mcpServers']).to have_key('test-server')
         ensure
           ENV.delete('TEST_TOKEN')
+        end
+
+        it "only syncs enabled servers to Cursor" do
+          config_dir = File.join(tmpdir, "configs", "ai")
+          File.write(File.join(config_dir, "mcp-servers-enabled.json"), JSON.generate(%w[test-server]))
+
+          ENV['TEST_TOKEN'] = 'tok'
+          s = described_class.new(dotfiles_dir: tmpdir)
+          s.send(:install_mcp_servers)
+
+          cursor_mcp = JSON.parse(File.read(File.join(home_dir, ".cursor", "mcp.json")))
+          expect(cursor_mcp['mcpServers']).to have_key('test-server')
+          expect(cursor_mcp['mcpServers']).not_to have_key('npx-server')
+        ensure
+          ENV.delete('TEST_TOKEN')
+        end
+
+        it "syncs no servers when enabled list is empty" do
+          config_dir = File.join(tmpdir, "configs", "ai")
+          File.write(File.join(config_dir, "mcp-servers-enabled.json"), JSON.generate([]))
+
+          s = described_class.new(dotfiles_dir: tmpdir)
+          s.send(:install_mcp_servers)
+
+          cursor_mcp = JSON.parse(File.read(File.join(home_dir, ".cursor", "mcp.json")))
+          expect(cursor_mcp['mcpServers']).to be_empty
         end
 
         it "does not write Cursor mcp.json in dry run mode" do
@@ -242,6 +269,7 @@ RSpec.describe DotfilesSync do
           }
           config_dir = File.join(tmpdir, "configs", "ai")
           File.write(File.join(config_dir, "mcp-servers.json"), JSON.generate(config_with_node_bin))
+          File.write(File.join(config_dir, "mcp-servers-enabled.json"), JSON.generate(%w[node-server]))
 
           s = described_class.new(dotfiles_dir: tmpdir)
           npx_path = `which npx 2>/dev/null`.strip

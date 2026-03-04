@@ -1,0 +1,94 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'json'
+
+DOTFILES_DIR = File.expand_path('..', __dir__)
+CATALOG_FILE = "#{DOTFILES_DIR}/configs/ai/mcp-servers.json"
+ENABLED_FILE = "#{DOTFILES_DIR}/configs/ai/mcp-servers-enabled.json"
+
+def load_catalog
+  return {} unless File.exist?(CATALOG_FILE)
+
+  JSON.parse(File.read(CATALOG_FILE)).fetch('mcpServers', {})
+end
+
+def load_enabled
+  return [] unless File.exist?(ENABLED_FILE)
+
+  JSON.parse(File.read(ENABLED_FILE))
+end
+
+def save_enabled(names)
+  File.write(ENABLED_FILE, "#{JSON.pretty_generate(names.sort)}\n")
+end
+
+def list
+  catalog = load_catalog
+  enabled = load_enabled
+
+  if catalog.empty?
+    puts "No MCP servers defined in catalog."
+    return
+  end
+
+  puts "Available MCP servers:"
+  catalog.each_key do |name|
+    status = enabled.include?(name) ? "[enabled]" : "[disabled]"
+    puts "  #{status} #{name}"
+  end
+end
+
+def enable(name)
+  catalog = load_catalog
+  unless catalog.key?(name)
+    puts "Error: '#{name}' not found in catalog. Available: #{catalog.keys.join(', ')}"
+    exit 1
+  end
+
+  enabled = load_enabled
+  if enabled.include?(name)
+    puts "'#{name}' is already enabled."
+    return
+  end
+
+  enabled << name
+  save_enabled(enabled)
+  puts "Enabled '#{name}'. Run dotfiles-sync to apply."
+end
+
+def disable(name)
+  enabled = load_enabled
+  unless enabled.include?(name)
+    puts "'#{name}' is not currently enabled."
+    return
+  end
+
+  enabled.delete(name)
+  save_enabled(enabled)
+  puts "Disabled '#{name}'. Run dotfiles-sync to apply."
+end
+
+def usage
+  puts <<~USAGE
+    Usage: opt-in-mcp <command> [name]
+
+    Commands:
+      list              Show all available MCP servers and their status
+      enable <name>     Enable an MCP server
+      disable <name>    Disable an MCP server
+  USAGE
+end
+
+case ARGV[0]
+when 'list'
+  list
+when 'enable'
+  abort "Usage: opt-in-mcp enable <name>" unless ARGV[1]
+  enable(ARGV[1])
+when 'disable'
+  abort "Usage: opt-in-mcp disable <name>" unless ARGV[1]
+  disable(ARGV[1])
+else
+  usage
+end
