@@ -49,6 +49,7 @@ class DotfilesSync
       section("Ghostty") { install_ghostty_config }
       section("Editor Configs") { install_editor_configs }
       section("AI Skills") { install_ai_skills }
+      section("Skills.sh") { install_skills_sh }
       section("MCP Servers") { install_mcp_servers }
       section("Xcode") { install_xcode_config }
       section("Disk Cleanup") { cleanup_disk_space }
@@ -1001,6 +1002,47 @@ class DotfilesSync
       log_change "Updated #{commands.size} command skill(s)"
       @actions[:configured] << "AI skills (commands)"
     end
+  end
+
+  def install_skills_sh
+    config_file = "#{@dotfiles_dir}/configs/ai/skills-sh.json"
+    unless File.exist?(config_file)
+      log_detail "  No skills.sh config found at #{config_file}"
+      return
+    end
+
+    skills = JSON.parse(File.read(config_file))
+    unless skills.is_a?(Array) && !skills.empty?
+      log_detail "  No skills.sh skills defined"
+      return
+    end
+
+    npx = npx_path
+    if npx == '${NPX_PATH}'
+      log "  Warning: npx not found, skipping skills.sh install"
+      @actions[:warnings] << "npx not found for skills.sh"
+      return
+    end
+
+    installed_any = false
+    skills.each do |source|
+      log_detail "  Installing skill: #{source}"
+      unless @dry_run
+        _stdout, stderr, status = Open3.capture3(npx, 'skills', 'add', source, '-y', '-g')
+        if status.success?
+          log_change "Installed skill: #{source}"
+          installed_any = true
+        else
+          log "  Warning: Failed to install skill #{source}: #{stderr.strip}"
+          @actions[:warnings] << "skills.sh #{source}"
+        end
+      else
+        log_change "Would install skill: #{source}"
+        installed_any = true
+      end
+    end
+
+    @actions[:configured] << "skills.sh" if installed_any
   end
 
   def install_mcp_servers
