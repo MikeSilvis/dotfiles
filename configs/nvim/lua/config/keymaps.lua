@@ -25,6 +25,8 @@ map("n", "<leader>f", function()
 end, { desc = "Live grep" })
 
 map("n", "<leader>b", "<cmd>Neotree toggle<cr>", { desc = "Toggle File Explorer" })
+map("n", "<C-j>", "<cmd>Neotree reveal<cr>", { desc = "Reveal current file in tree" })
+map("n", "<leader>j", "<cmd>Neotree reveal<cr>", { desc = "Reveal current file in tree" })
 
 -- Terminal (horizontal split below)
 map("n", "<leader>t", "<cmd>below split | terminal<cr>", { desc = "Open terminal below" })

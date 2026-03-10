@@ -133,6 +133,8 @@ class DotfilesSync
     check_and_install_ghostty
     check_and_install_jq
     check_and_install_neovim_deps
+    check_and_install_gcloud
+    check_and_install_gws
     install_mise_config
     setup_touch_id_sudo
   end
@@ -367,6 +369,30 @@ class DotfilesSync
       run_command("brew install --cask ghostty", "Installing Ghostty")
     else
       log_detail "  Ghostty already installed"
+    end
+  end
+
+  def check_and_install_gcloud
+    log_detail "  Checking Google Cloud SDK..."
+
+    unless system("which gcloud > /dev/null 2>&1")
+      log_change "Installing Google Cloud SDK"
+      @actions[:installed] << "Google Cloud SDK"
+      run_command("brew install --cask google-cloud-sdk", "Installing Google Cloud SDK")
+    else
+      log_detail "  Google Cloud SDK already installed"
+    end
+  end
+
+  def check_and_install_gws
+    log_detail "  Checking Google Workspace CLI..."
+
+    unless system("which gws > /dev/null 2>&1")
+      log_change "Installing Google Workspace CLI"
+      @actions[:installed] << "Google Workspace CLI"
+      run_command("npm install -g @googleworkspace/cli", "Installing Google Workspace CLI")
+    else
+      log_detail "  Google Workspace CLI already installed"
     end
   end
 

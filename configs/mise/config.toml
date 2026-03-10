@@ -3,3 +3,6 @@ trusted_config_paths = ["/"]
 idiomatic_version_file_enable_tools = ["node"]
 
 [tools]
+node = "22"
+python = "3.13"
+ruby = "3.3.9"
