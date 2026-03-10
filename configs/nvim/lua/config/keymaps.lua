@@ -16,9 +16,15 @@ map("n", "<leader>rg", function()
   require("telescope.builtin").live_grep()
 end, { desc = "Live grep" })
 
-map("n", "<leader>b", function()
-  require("telescope.builtin").buffers()
-end, { desc = "Buffers" })
+map("n", "<C-S-f>", function()
+  require("telescope.builtin").live_grep()
+end, { desc = "Live grep" })
+
+map("n", "<leader>f", function()
+  require("telescope.builtin").live_grep()
+end, { desc = "Live grep" })
+
+map("n", "<leader>b", "<cmd>Neotree toggle<cr>", { desc = "Toggle File Explorer" })
 
 -- Terminal (horizontal split below)
 map("n", "<leader>t", "<cmd>below split | terminal<cr>", { desc = "Open terminal below" })
