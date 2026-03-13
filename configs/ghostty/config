@@ -17,7 +17,7 @@ background-opacity = 0.90
 background-blur-radius = 20
 
 # Scrollback
-scrollback-limit = 0
+scrollback-limit = 100000
 
 # Cursor
 cursor-style = block
